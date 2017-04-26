@@ -22,13 +22,13 @@ public class Servidor {
     Socket socket;
     DataOutputStream dout;
     DataInputStream din;
-    BufferedOutputStream bout;
     BufferedInputStream bin;
-    byte[] out, in, outf;
+    byte[] out, in;
     File f;
+    int bytes;
     String ip, nombre, cadena;
     StringTokenizer tokens;
-    static final int tambytes = 524288; // 512 kb
+    static final int tambytes = 1048576; // 1Mb
 
     public Servidor() {
         server = null;
@@ -40,6 +40,7 @@ public class Servidor {
             server = new ServerSocket(5000);
             System.out.println("Servidor Listo... Esperando Cliente...");
         } catch (IOException ex) {
+            System.out.println("Problema al iniciar el servidor");
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
         socket = new Socket();
@@ -48,7 +49,6 @@ public class Servidor {
             System.out.println("Cliente conectado...");
             dout = new DataOutputStream(socket.getOutputStream());
             din = new DataInputStream(socket.getInputStream());
-            bout = new BufferedOutputStream(socket.getOutputStream());
             bin = new BufferedInputStream(new FileInputStream(f));
         } catch (IOException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
@@ -56,45 +56,56 @@ public class Servidor {
         try {
             //client  ** IP - NOMBRE **
             in = new byte[tambytes];
-            int bytes = din.read(in, 0, in.length);
+            bytes = din.read(in, 0, in.length);
             if (bytes > 0) {
                 cadena = new String(in, 0, bytes, StandardCharsets.UTF_8);
                 tokens = new StringTokenizer(cadena, "?\n");
                 ip = tokens.nextToken();
                 nombre = tokens.nextToken();
+                System.out.println("Cliente >> IP: " + ip + " Nombre: " + nombre);
             }
-            System.out.println("Cliente >> IP: " + ip + " Nombre: " + nombre);
-            in = null;
 
-            //server  ** NOMBRE ARCHIVO - TAMAÑO **
+            //server  ** NOMBRE ARCHIVO - PESO **
             out = new byte[tambytes];
             cadena = f.getName() + "?" + f.length() + "\n";
             out = cadena.getBytes(StandardCharsets.UTF_8);
             dout.write(out, 0, out.length);
+            dout.flush();
             System.out.println("Servidor >> " + cadena);
 
-            //server  ** IMAGEN **
-            out = new byte[tambytes];
-            bytes = bin.read(out, 0, out.length);
-            System.out.println("bytes >>>> " + bytes + " outf -->>>> " + out.length);
-            while (bytes > 0) {
-                dout.write(out, 0, bytes);
-                dout.flush();
-                bytes = bin.read(out, 0, out.length);
-                sleep(50);
+            //client ** VERIFICACION - NOMBRE - PESO **
+            String aux = "";
+            in = new byte[tambytes];
+            bytes = din.read(in, 0, in.length);
+            if (bytes > 0) {
+                aux = new String(in, 0, bytes, StandardCharsets.UTF_8);
+                System.out.println("Cliente >> " + aux);
             }
-            //client
+            if (aux.equals(cadena)) {
+                //server  ** IMAGEN **
+                System.out.println("Servidor >> Enviando Imagen");
+                out = new byte[tambytes];
+                bytes = bin.read(out, 0, out.length);
+                while (bytes > 0) {
+                    dout.write(out, 0, bytes);
+                    dout.flush();
+                    bytes = bin.read(out, 0, out.length);
+                    sleep(50);
+                }
+                System.out.println("Servidor >> Imagen Enviada");
+            }
+            //client ** FIN **
             String exit = "";
             in = new byte[tambytes];
             bytes = din.read(in, 0, in.length);
             if (bytes > 0) {
                 exit = new String(in, 0, bytes, StandardCharsets.UTF_8);
-                System.out.println("Cliente: " + exit);
+                System.out.println("Cliente >> " + exit);
             }
 
             dout.close();
             din.close();
-            bout.close();
+            bin.close();
             socket.close();
 
         } catch (IOException ex) {

@@ -63,17 +63,20 @@ public class Cliente {
                 tamf = Integer.parseInt(tokens.nextToken());
             }
             System.out.println("Servidor >> Nombre: " + nomf + " Tamaño: " + tamf);
-            System.out.println("Cadena: " + cadena);
             f = new File("C:/Users/Anny Chacon/Desktop/proyecto1-comunicaciones/servidor/" + nomf);
             bout = new BufferedOutputStream(new FileOutputStream(f));
             //cliente
 
             //server
             in = new byte[tamf];
-            bytes = bin.read(in, 0, tamf);
-            System.out.println("bytes  -->>> " + bytes + " Tamaño -->>> " + tamf);
-            if (bytes > 0) {
-                bout.write(in, 0, bytes);
+            int tam = 0;
+            while (tam < tamf) {
+                bytes = bin.read(in, 0, tamf);
+                if (bytes > 0) {
+                    bout.write(in, 0, bytes);
+                    tam += bytes;
+                    System.out.println("bytes  -->>> " + bytes + " Tamaño -->>> " + tam);
+                }
                 bout.flush();
             }
             //client

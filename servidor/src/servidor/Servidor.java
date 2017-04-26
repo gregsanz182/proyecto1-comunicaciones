@@ -6,6 +6,7 @@
 package servidor;
 
 import java.io.*;
+import static java.lang.Thread.sleep;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.StringTokenizer;
@@ -27,6 +28,7 @@ public class Servidor {
     File f;
     String ip, nombre, cadena;
     StringTokenizer tokens;
+    static final int tambytes = 524288; // 512 kb
 
     public Servidor() {
         server = null;
@@ -53,7 +55,7 @@ public class Servidor {
         }
         try {
             //client  ** IP - NOMBRE **
-            in = new byte[1024];
+            in = new byte[tambytes];
             int bytes = din.read(in, 0, in.length);
             if (bytes > 0) {
                 cadena = new String(in, 0, bytes, StandardCharsets.UTF_8);
@@ -65,23 +67,25 @@ public class Servidor {
             in = null;
 
             //server  ** NOMBRE ARCHIVO - TAMAÑO **
-            out = new byte[1024];
+            out = new byte[tambytes];
             cadena = f.getName() + "?" + f.length() + "\n";
             out = cadena.getBytes(StandardCharsets.UTF_8);
             dout.write(out, 0, out.length);
             System.out.println("Servidor >> " + cadena);
 
             //server  ** IMAGEN **
-            out = new byte[(int) f.length()];
-            bytes = bin.read(out, 0, (int) f.length());
+            out = new byte[tambytes];
+            bytes = bin.read(out, 0, out.length);
             System.out.println("bytes >>>> " + bytes + " outf -->>>> " + out.length);
-            if (bytes > 0) {
+            while (bytes > 0) {
                 dout.write(out, 0, bytes);
                 dout.flush();
+                bytes = bin.read(out, 0, out.length);
+                sleep(50);
             }
             //client
             String exit = "";
-            in = new byte[1024];
+            in = new byte[tambytes];
             bytes = din.read(in, 0, in.length);
             if (bytes > 0) {
                 exit = new String(in, 0, bytes, StandardCharsets.UTF_8);
@@ -94,6 +98,8 @@ public class Servidor {
             socket.close();
 
         } catch (IOException ex) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

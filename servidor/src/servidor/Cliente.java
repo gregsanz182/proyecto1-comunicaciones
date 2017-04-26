@@ -21,7 +21,6 @@ public class Cliente {
     Socket socket;
     DataInputStream din;
     DataOutputStream dout;
-    BufferedInputStream bin;
     BufferedOutputStream bout;
     String nombre, cadena, nomf;
     int tamf;
@@ -29,6 +28,7 @@ public class Cliente {
     byte[] in, out;
     int bytes;
     File f;
+    static final int tambytes = 1048576; // 512 kb
 
     public Cliente() {
         socket = null;
@@ -40,12 +40,11 @@ public class Cliente {
             socket = new Socket("localhost", 5000);
             din = new DataInputStream(socket.getInputStream());
             dout = new DataOutputStream(socket.getOutputStream());
-            bin = new BufferedInputStream(socket.getInputStream());
         } catch (IOException ex) {
             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
         try {
-            //client
+            //client  ** IP - NOMBRE **
             System.out.println("Cliente >> IP: " + socket.getInetAddress() + " Nombre: " + nombre);
             cadena = socket.getInetAddress() + "?" + nombre + "\n";
             out = new byte[1024];
@@ -53,8 +52,9 @@ public class Cliente {
             dout.write(out, 0, out.length);
             dout.flush();
             out = null;
-            //server
-            in = new byte[1024];
+
+            //server  ** NOMBRE - PESO **
+            in = new byte[tambytes];
             bytes = din.read(in, 0, in.length);
             if (bytes > 0) {
                 cadena = new String(in, 0, bytes, StandardCharsets.UTF_8);
@@ -65,30 +65,36 @@ public class Cliente {
             System.out.println("Servidor >> Nombre: " + nomf + " Tamaño: " + tamf);
             f = new File("C:/Users/Anny Chacon/Desktop/proyecto1-comunicaciones/servidor/" + nomf);
             bout = new BufferedOutputStream(new FileOutputStream(f));
-            //cliente
 
-            //server
-            in = new byte[tamf];
+            //client  ** RESPUESTA **
+            dout.write(in, 0, bytes);
+            dout.flush();
+
+            // server ** ARCHIVO **
+            in = new byte[tambytes];
             int tam = 0;
+            System.out.println("Cliente >> Recibiendo Imagen");
             while (tam < tamf) {
-                bytes = bin.read(in, 0, tamf);
+                bytes = din.read(in, 0, in.length);
                 if (bytes > 0) {
                     bout.write(in, 0, bytes);
                     tam += bytes;
-                    System.out.println("bytes  -->>> " + bytes + " Tamaño -->>> " + tam);
+                    System.out.println("Cliente >> Bytes Recibidos  --> " + tam + " Recibiendo -->>> " + bytes);
                 }
                 bout.flush();
             }
-            //client
-            String bye = "Adios";
+            System.out.println("Cliente >> Imagen Recibida");
+            //client ** FIN CONEXION **
+            cadena = "FIN CONEXION";
             out = new byte[1024];
-            out = bye.getBytes(StandardCharsets.UTF_8);
+            out = cadena.getBytes(StandardCharsets.UTF_8);
             dout.write(out, 0, out.length);
             dout.flush();
+            System.out.println("Cliente >> " + cadena);
 
             dout.close();
             din.close();
-            bin.close();
+            bout.close();
             socket.close();
 
         } catch (IOException ex) {

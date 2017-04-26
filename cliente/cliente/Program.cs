@@ -10,6 +10,7 @@ namespace cliente
     {
         static void Main(string[] args)
         {
+            Cliente cliente = new Cliente();
         }
     }
 }

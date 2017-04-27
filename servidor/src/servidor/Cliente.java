@@ -45,7 +45,7 @@ public class Cliente {
         }
         try {
             //client  ** IP - NOMBRE **
-            System.out.println("Cliente >> IP: " + socket.getInetAddress() + " Nombre: " + nombre);
+            System.out.println("Cliente  >> IP: " + socket.getInetAddress() + " Nombre: " + nombre);
             cadena = socket.getInetAddress() + "?" + nombre + "\n";
             out = new byte[1024];
             out = cadena.getBytes(StandardCharsets.UTF_8);
@@ -73,24 +73,24 @@ public class Cliente {
             // server ** ARCHIVO **
             in = new byte[tambytes];
             int tam = 0;
-            System.out.println("Cliente >> Recibiendo Imagen");
+            System.out.println("Cliente  >> Recibiendo Imagen");
             while (tam < tamf) {
                 bytes = din.read(in, 0, in.length);
                 if (bytes > 0) {
                     bout.write(in, 0, bytes);
                     tam += bytes;
-                    System.out.println("Cliente >> Bytes Recibidos  --> " + tam + " Recibiendo -->>> " + bytes);
+                    System.out.println("Cliente  >> Recibiendo --> " + bytes + " Bytes Recibidos  --> " + tam);
                 }
                 bout.flush();
             }
-            System.out.println("Cliente >> Imagen Recibida");
+            System.out.println("Cliente  >> Imagen Recibida");
             //client ** FIN CONEXION **
             cadena = "FIN CONEXION";
             out = new byte[1024];
             out = cadena.getBytes(StandardCharsets.UTF_8);
             dout.write(out, 0, out.length);
             dout.flush();
-            System.out.println("Cliente >> " + cadena);
+            System.out.println("Cliente  >> " + cadena);
 
             dout.close();
             din.close();

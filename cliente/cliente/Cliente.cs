@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace cliente
@@ -20,6 +22,7 @@ namespace cliente
         String nomFichero;
         String nombre;
         String dirServer;
+        String dirClient;
         String cad;
 
         public Cliente()
@@ -30,16 +33,18 @@ namespace cliente
             bw = null;
             bufferIn = new byte[1024];
 
-            //solicitarDatos();
+            solicitarDatos();
             realizarConexion();
             Console.ReadLine();
         }
 
         void solicitarDatos()
         {
-            Console.Write("Ingrese nombre: \n>> ");
-            nombre = Console.ReadLine();
-            Console.Write("Ingrese direccion IP del servidor: \n>> ");
+            /*Console.Write("Ingrese nombre: \n>> ");
+            nombre = Console.ReadLine();*/
+            nombre = Environment.MachineName;
+            hallarDireccionIP();
+            Console.WriteLine("Ingrese direccion IP del servidor: \n>> ");
             dirServer = Console.ReadLine();
         }
 
@@ -66,11 +71,24 @@ namespace cliente
             cerrarConexion();
         }
 
+        void hallarDireccionIP()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if(ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    dirClient = ip.ToString();
+                }
+            }
+            Console.WriteLine(dirClient);
+        }
+
         void enviarInfo()
         {
             try
             {
-                bufferOut = Encoding.UTF8.GetBytes("192.168.0.1?Gregory");
+                bufferOut = Encoding.UTF8.GetBytes("192.168.0.1?"+nombre);
                 sStream.Flush();
                 sStream.Write(bufferOut, 0, bufferOut.Length);
             }
@@ -128,8 +146,8 @@ namespace cliente
             {
                 while (total < tamano)
                 {
+                    //Thread.Sleep(250);
                     bytes = sStream.Read(bufferIn, 0, bufferIn.Length);
-                    Console.WriteLine("aqui");
                     if (bytes > 0)
                     {
                         bw.Write(bufferIn, 0, bytes);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace cliente
 {
@@ -10,7 +11,9 @@ namespace cliente
     {
         static void Main(string[] args)
         {
-            Cliente cliente = new Cliente();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new clienteGUI());
         }
     }
 }

@@ -14,11 +14,13 @@ namespace cliente
         NetworkStream sStream;
         FileStream fs;
         BinaryWriter bw;
-        byte[] buffer = new Byte[1024];
+        byte[] bufferIn;
+        byte[] bufferOut;
         long tamano;
         String nomFichero;
         String nombre;
         String dirServer;
+        String cad;
 
         public Cliente()
         {
@@ -26,6 +28,7 @@ namespace cliente
             sStream = null;
             fs = null;
             bw = null;
+            bufferIn = new byte[1024];
 
             //solicitarDatos();
             realizarConexion();
@@ -44,7 +47,7 @@ namespace cliente
             sCliente = new TcpClient();
             try
             {
-                sCliente.Connect("localhost", 8888);
+                sCliente.Connect("localhost", 5000);
             }
             catch (SocketException e)
             {
@@ -55,7 +58,26 @@ namespace cliente
             Console.WriteLine(" Conectado al servidor.");
             sStream = sCliente.GetStream();
 
+            enviarInfo();
             recibirInfo();
+            aceptarTransmision();
+            abrirFichero();
+            recibir();
+            cerrarConexion();
+        }
+
+        void enviarInfo()
+        {
+            try
+            {
+                bufferOut = Encoding.UTF8.GetBytes("192.168.0.1?Gregory");
+                sStream.Flush();
+                sStream.Write(bufferOut, 0, bufferOut.Length);
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
         }
 
         void recibirInfo()
@@ -64,9 +86,9 @@ namespace cliente
             {
                 String[] cadena;
                 int bytes;
-                bytes = sStream.Read(buffer, 0, buffer.Length);
-                sStream.Flush();
-                cadena = Encoding.UTF8.GetString(buffer, 0, bytes).Split('?');
+                bytes = sStream.Read(bufferIn, 0, bufferIn.Length);
+                cad = Encoding.UTF8.GetString(bufferIn, 0, bytes);
+                cadena = cad.Split('?');
                 nomFichero = cadena[0];
                 tamano = Int64.Parse(cadena[1]);
             }
@@ -75,6 +97,59 @@ namespace cliente
                 Console.WriteLine(e.ToString());
             }
             Console.WriteLine(nomFichero + " " + tamano);
+        }
+
+        void aceptarTransmision()
+        {
+            try
+            {
+                sStream.Flush();
+                bufferOut = Encoding.UTF8.GetBytes(cad);
+                sStream.Write(bufferOut, 0, bufferOut.Length);
+                sStream.Flush();
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        void abrirFichero()
+        {
+            fs = new FileStream(nomFichero, FileMode.Create);
+            bw = new BinaryWriter(fs);
+        }
+
+        void recibir()
+        {
+            long total = 0;
+            int bytes;
+            try
+            {
+                while (total < tamano)
+                {
+                    bytes = sStream.Read(bufferIn, 0, bufferIn.Length);
+                    Console.WriteLine("aqui");
+                    if (bytes > 0)
+                    {
+                        bw.Write(bufferIn, 0, bytes);
+                        total += bytes;
+                    }
+                }
+                sStream.Flush();
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+        void cerrarConexion()
+        {
+            bw.Close();
+            fs.Close();
+            sStream.Close();
+            sCliente.Close();
         }
     }
 }

@@ -29,13 +29,13 @@ public class Servidor extends JFrame {
     BufferedInputStream bin;
     byte[] out, in;
     File f;
-    int bytes, width, height;
+    int bytes, width, height,x,y,w,h;
     String ip, nombre, cadena;
     StringTokenizer tokens;
     static final int tambytes = 1048576; // 1Mb
     //--------------------------------------------
-    JLabel text1, ipclient, nameclient, contImagen, dirImagen, pesoImagen, msjentrega, fin, peso, direccion;
-    JPanel ventana, cabecera, panelImagen;
+    JLabel text1, ipclient, nameclient, contImagen, dirImagen, pesoImagen, msjentrega, fin;
+    JPanel ventana, cabecera, panelImagen,sombra;
     ImageIcon imagen;
     Icon icon;
     JButton enviar;
@@ -47,7 +47,7 @@ public class Servidor extends JFrame {
         cadena = "";
         width = 700;
         height = 500;
-        f = new File("D:/Imagenes/fractals/5.jpg");
+        f = new File("D:/Imagenes/fractals/1.jpg");
         try {
             server = new ServerSocket(5000);
             System.out.println("Servidor Listo... Esperando Cliente...");
@@ -93,6 +93,22 @@ public class Servidor extends JFrame {
         setVisible(true);
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        //--------------------------------------------------------------
+        imagen = new ImageIcon(f.getAbsolutePath(), "Imagen a enviar");
+        int scaleW = 300, scaleH = 300;
+        y = x = h = 20;
+        if (imagen.getIconHeight() > imagen.getIconWidth()) {
+            scaleW = (imagen.getIconWidth() * scaleH) / imagen.getIconHeight();
+        } else {
+            scaleH = (imagen.getIconHeight() * scaleW) / imagen.getIconWidth();
+        }
+        if(imagen.getIconWidth() > imagen.getIconHeight()){
+            width = 760;
+            height = 220 + scaleH;
+        }else{
+            height = 520;
+            width = 460 + scaleW;
+        }
         //----------------------PRINCIPAL-------------------------------
         ventana = new JPanel();
         ventana.setLayout(null);
@@ -101,81 +117,61 @@ public class Servidor extends JFrame {
         //----------------------CABECERA--------------------------------
         cabecera = new JPanel();
         cabecera.setLayout(null);
-        cabecera.setBounds(20, 20, width - 40, 120);
+        cabecera.setBounds(x, y, width - 40, 120);
         cabecera.setBackground(Color.decode("#E4F7CA"));
         cabecera.setBorder(BorderFactory.createLineBorder(Color.GREEN));
         //--------------------------------------------------------------
-        int w = (cabecera.getWidth() / 2) - 40, x = 20;
+        w = (cabecera.getWidth() / 2) - 40;
         text1 = new JLabel("Esperando conexion del cliente...");
-        text1.setBounds(20, 20, w, 20);
+        text1.setBounds(x, y, w, h);
         text1.setVisible(true);
         //--------------------------------------------------------------
         ipclient = new JLabel("IP cliente: ");
-        ipclient.setBounds(x, 50, w, 20);
+        ipclient.setBounds(x, y+30, w, h);
         ipclient.setVisible(false);
         //--------------------------------------------------------------
         nameclient = new JLabel("Nombre cliente: ");
-        nameclient.setBounds(x, 80, w, 20);
+        nameclient.setBounds(x, y+60, w, h);
         nameclient.setVisible(false);
         //--------------------------------------------------------------
         x = (cabecera.getWidth() / 2) + 20;
         msjentrega = new JLabel("Imagen Entregada...");
-        msjentrega.setBounds(x, 20, w, 20);
+        msjentrega.setBounds(x, y, w, h);
         msjentrega.setVisible(false);
         //--------------------------------------------------------------
         fin = new JLabel("Fin de la transmicion...");
-        fin.setBounds(x, 50, w, 20);
+        fin.setBounds(x, y+30, w, h);
         fin.setVisible(false);
         //------------------------IMAGEN--------------------------------
-        int y = (cabecera.getY() * 2) + cabecera.getHeight();
+        x = y = 20;
         panelImagen = new JPanel();
         panelImagen.setLayout(null);
-        panelImagen.setBounds(20, y, width - 40, height - y - 20);
+        panelImagen.setBounds(x,160,width-40,height-180);
         panelImagen.setBackground(Color.decode("#E4F7CA"));
         panelImagen.setBorder(BorderFactory.createLineBorder(Color.GREEN));
         //--------------------------------------------------------------
-        imagen = new ImageIcon(f.getAbsolutePath(), "Imagen a enviar");
-        //--------------------------------------------------------------
         contImagen = new JLabel();
         contImagen.setVisible(true);
-        //--------------------------------------------------------------
-        int scaleW = (int) (0.5 * (panelImagen.getWidth() - 40)), scaleH = (panelImagen.getHeight() - 40);
-        System.out.println("ancho: " + scaleW + " alto: " + scaleH);
-        y = x = 20;
-        if (imagen.getIconHeight() > imagen.getIconWidth()) {
-            scaleW = (imagen.getIconWidth() * scaleH) / imagen.getIconHeight();
-            x = (panelImagen.getWidth() / 4) - (scaleW / 2);
-        } else {
-            scaleH = (imagen.getIconHeight() * scaleW) / imagen.getIconWidth();
-            y = (panelImagen.getHeight() / 2) - (scaleH / 2);
-        }
         contImagen.setBounds(x, y, scaleW, scaleH);
         System.out.println(contImagen.getBounds().toString());
+        //--------------------------------------------------------------
         icon = new ImageIcon(imagen.getImage().getScaledInstance(contImagen.getWidth(), contImagen.getHeight(), 1));
         contImagen.setIcon(icon);
-        x = (panelImagen.getWidth() / 2) + 20;
-        w = (panelImagen.getWidth() - x - 20);
         //--------------------------------------------------------------
-        dirImagen = new JLabel("Direccion de la Imagen: ");
-        dirImagen.setBounds(x, 20, w, 20);
+        x = contImagen.getWidth() + 40;
+        w = (panelImagen.getWidth() - x - 20);
+        y = 40;
+        dirImagen = new JLabel("Direccion de la Imagen: "+f.getAbsolutePath());
+        dirImagen.setBounds(x, y, w, h);
         dirImagen.setVisible(true);
         //--------------------------------------------------------------
-        direccion = new JLabel(f.getAbsolutePath());
-        direccion.setBounds(x, 60, w, 20);
-        direccion.setBackground(Color.WHITE);
-        direccion.setForeground(Color.red);
-        direccion.setVisible(true);
-        //--------------------------------------------------------------
-        pesoImagen = new JLabel("Peso de la imagen: ");
-        pesoImagen.setBounds(x, 100, w, 20);
+        pesoImagen = new JLabel("Peso de la imagen: "+f.length() / 1024 + " Kb");
+        pesoImagen.setBounds(x, y+30, w, 20);
         pesoImagen.setVisible(true);
         //--------------------------------------------------------------
-        peso = new JLabel(f.length() / 1024 + " Kb");
-        peso.setBounds(x, 140, w, 20);
-        peso.setVisible(true);
-        //--------------------------------------------------------------
+        x = 40 + contImagen.getWidth() + 150;
         enviar = new JButton("Enviar");
-        enviar.setBounds((panelImagen.getWidth() / 2) - 50, panelImagen.getHeight() - 65, 100, 35);
+        enviar.setBounds((contImagen.getWidth()+170), panelImagen.getHeight() - 100, 100, 40);
         enviar.setEnabled(false);
         enviar.setVisible(true);
         enviar.addMouseListener(new MouseListener() {
@@ -209,9 +205,7 @@ public class Servidor extends JFrame {
 
         panelImagen.add(contImagen);
         panelImagen.add(dirImagen);
-        panelImagen.add(direccion);
         panelImagen.add(pesoImagen);
-        panelImagen.add(peso);
         panelImagen.add(enviar);
 
         ventana.add(cabecera);

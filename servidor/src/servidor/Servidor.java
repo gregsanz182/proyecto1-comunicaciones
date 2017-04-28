@@ -40,14 +40,14 @@ public class Servidor extends JFrame {
     Icon icon;
     JButton enviar;
 
-    public Servidor() {
+    public Servidor(File a) {
         server = null;
         socket = null;
         tokens = null;
         cadena = "";
         width = 700;
         height = 500;
-        f = new File("D:/Imagenes/fractals/5.jpg");
+        f = a;
         try {
             server = new ServerSocket(5000);
             System.out.println("Servidor Listo... Esperando Cliente...");

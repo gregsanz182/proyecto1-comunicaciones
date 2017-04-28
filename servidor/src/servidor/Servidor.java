@@ -47,7 +47,7 @@ public class Servidor extends JFrame {
         cadena = "";
         width = 700;
         height = 500;
-        f = new File("D:/Imagenes/fractals/captura.png");
+        f = new File("D:/Imagenes/fractals/5.jpg");
         try {
             server = new ServerSocket(5000);
             System.out.println("Servidor Listo... Esperando Cliente...");

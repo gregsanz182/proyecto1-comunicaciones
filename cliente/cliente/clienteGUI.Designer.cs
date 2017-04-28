@@ -43,10 +43,13 @@ namespace cliente
             this.label1 = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.vistPrevPan = new System.Windows.Forms.GroupBox();
+            this.imagen = new System.Windows.Forms.PictureBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.vistPrevPan.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.imagen)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
@@ -162,15 +165,25 @@ namespace cliente
             this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.textBox2.Size = new System.Drawing.Size(294, 263);
             this.textBox2.TabIndex = 7;
+            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // vistPrevPan
             // 
+            this.vistPrevPan.Controls.Add(this.imagen);
             this.vistPrevPan.Location = new System.Drawing.Point(327, 13);
             this.vistPrevPan.Name = "vistPrevPan";
             this.vistPrevPan.Size = new System.Drawing.Size(545, 506);
             this.vistPrevPan.TabIndex = 8;
             this.vistPrevPan.TabStop = false;
             this.vistPrevPan.Text = "Vista Previa";
+            // 
+            // imagen
+            // 
+            this.imagen.Location = new System.Drawing.Point(6, 19);
+            this.imagen.Name = "imagen";
+            this.imagen.Size = new System.Drawing.Size(533, 481);
+            this.imagen.TabIndex = 0;
+            this.imagen.TabStop = false;
             // 
             // groupBox2
             // 
@@ -213,6 +226,8 @@ namespace cliente
             this.groupBox1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.vistPrevPan.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.imagen)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
@@ -238,5 +253,6 @@ namespace cliente
         private GroupBox vistPrevPan;
         private GroupBox groupBox2;
         private GroupBox groupBox3;
+        private PictureBox imagen;
     }
 }

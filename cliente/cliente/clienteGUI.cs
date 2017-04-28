@@ -133,6 +133,8 @@ namespace cliente
 
                 //recibir archivo
                 recibir();
+                cerrarFichero();
+                mostrarImagen();
 
                 estadoFoot(LISTO);
                 habilitarIn();
@@ -205,10 +207,6 @@ namespace cliente
             sStream.Flush();
         }
 
-        void cerrarConexion()
-        {
-            
-        }
 
         void estadoFoot(int tipo)
         {
@@ -267,11 +265,29 @@ namespace cliente
             bw = new BinaryWriter(fs);
         }
 
+        void cerrarFichero()
+        {
+            bw.Close();
+            fs.Close();
+        }
+
         void mensajeLog(String cadena)
         {
             this.textBox2.Text += DateTime.Now.ToString("t", CultureInfo.CreateSpecificCulture("hr-HR")) + " >> " + cadena + "\r\n\r\n";
         }
 
+        void mostrarImagen()
+        {
+            Image img = Image.FromFile(nomFichero);
+            imagen.Image = img;
+            imagen.SizeMode = PictureBoxSizeMode.Zoom;
+            /*
+            imagen.Size = img.Size;
+            if(imagen.Width > imagen.Height){
+                imagen.Width = 533;
+                imagen.Height = (481 * imagen.Height) / 533;
+            }*/
+        }
 
         void ventanaCerrada(object sender, System.Windows.Forms.FormClosedEventArgs e)
         {
@@ -324,6 +340,11 @@ namespace cliente
         }
 
         private void maskedTextBox1_MaskInputRejected(object sender, MaskInputRejectedEventArgs e)
+        {
+
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
         {
 
         }

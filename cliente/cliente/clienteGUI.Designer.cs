@@ -46,6 +46,8 @@ namespace cliente
             this.imagen = new System.Windows.Forms.PictureBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.labelPuerto = new System.Windows.Forms.Label();
+            this.textPuerto = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.vistPrevPan.SuspendLayout();
@@ -70,8 +72,9 @@ namespace cliente
             this.textIP.Location = new System.Drawing.Point(8, 37);
             this.textIP.MaxLength = 15;
             this.textIP.Name = "textIP";
-            this.textIP.Size = new System.Drawing.Size(294, 20);
+            this.textIP.Size = new System.Drawing.Size(188, 20);
             this.textIP.TabIndex = 1;
+            this.textIP.Text = "127.0.0.1";
             this.textIP.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // groupBox1
@@ -197,6 +200,8 @@ namespace cliente
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.labelPuerto);
+            this.groupBox3.Controls.Add(this.textPuerto);
             this.groupBox3.Controls.Add(this.botonConectar);
             this.groupBox3.Controls.Add(this.labelServerIP);
             this.groupBox3.Controls.Add(this.textIP);
@@ -206,6 +211,24 @@ namespace cliente
             this.groupBox3.TabIndex = 10;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Detalles del Servidor";
+            // 
+            // labelPuerto
+            // 
+            this.labelPuerto.AutoSize = true;
+            this.labelPuerto.Location = new System.Drawing.Point(199, 21);
+            this.labelPuerto.Name = "labelPuerto";
+            this.labelPuerto.Size = new System.Drawing.Size(41, 13);
+            this.labelPuerto.TabIndex = 5;
+            this.labelPuerto.Text = "Puerto:";
+            // 
+            // textPuerto
+            // 
+            this.textPuerto.Location = new System.Drawing.Point(202, 37);
+            this.textPuerto.Name = "textPuerto";
+            this.textPuerto.Size = new System.Drawing.Size(98, 20);
+            this.textPuerto.TabIndex = 4;
+            this.textPuerto.Text = "5000";
+            this.textPuerto.TextChanged += new System.EventHandler(this.textBox1_TextChanged_1);
             // 
             // clienteGUI
             // 
@@ -233,6 +256,7 @@ namespace cliente
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
+            this.StartPosition = FormStartPosition.CenterScreen;
 
         }
 
@@ -254,5 +278,7 @@ namespace cliente
         private GroupBox groupBox2;
         private GroupBox groupBox3;
         private PictureBox imagen;
+        private Label labelPuerto;
+        private TextBox textPuerto;
     }
 }

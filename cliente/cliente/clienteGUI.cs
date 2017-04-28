@@ -57,6 +57,7 @@ namespace cliente
         {
             clienteIP = hallarDireccionIP();
             nombrePC = Environment.MachineName;
+            this.Invoke(new MethodInvoker(delegate { mensajeLog("Preparando cliente"); }));
             Thread.Sleep(1000);
             this.Invoke(new MethodInvoker(delegate { preparar(); }));
         }
@@ -67,6 +68,7 @@ namespace cliente
             this.labelTextMaquina.Text = nombrePC;
             this.textIP.Enabled = true;
             this.botonConectar.Enabled = true;
+            mensajeLog("Listo");
             estadoFoot(LISTO);
         }
 
@@ -101,6 +103,7 @@ namespace cliente
                 mensajeLog(e.Message);
                 MessageBox.Show("Ocurrio un error al realizar la conexión.\nVerifique la dirección del servidor y vuelva a intentar", e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 estadoFoot(LISTO);
+                habilitarIn();
                 return;
             }
 
@@ -213,38 +216,39 @@ namespace cliente
             switch (tipo)
             {
                 case PREPARANDO:
-                    this.label1.Text = "Preparando...";
                     this.panel1.BackColor = Color.FromArgb(202, 81, 0);
+                    this.label1.Text = "Preparando...";
                     break;
                 case LISTO:
-                    this.label1.Text = "Listo";
                     this.panel1.BackColor = Color.FromArgb(0, 122, 204);
+                    this.label1.Text = "Listo";
                     break;
                 case ERROR:
-                    this.label1.Text = "Error";
                     this.panel1.BackColor = Color.Red;
+                    this.label1.Text = "Error";
                     break;
                 case CONECTANDO:
-                    this.label1.Text = "Conectando...";
                     this.panel1.BackColor = Color.FromArgb(104, 33, 122);
+                    this.label1.Text = "Conectando...";
                     break;
                 case DESCARGANDO:
-                    this.label1.Text = "Recibiendo imagen...";
                     this.panel1.BackColor = Color.FromArgb(54, 134, 50);
+                    this.label1.Text = "Recibiendo imagen...";
                     break;
                 case ESPERANDO:
-                    this.label1.Text = "Esperando transmisión...";
                     this.panel1.BackColor = Color.FromArgb(202, 81, 0);
+                    this.label1.Text = "Esperando transmisión...";
                     break;
                 case IDENTIFICANDO:
-                    this.label1.Text = "Identificandose...";
                     this.panel1.BackColor = Color.FromArgb(104, 33, 122);
+                    this.label1.Text = "Identificandose...";
                     break;
                 case DESCARGADO:
-                    this.label1.Text = "Descarga satisfactoria";
                     this.panel1.BackColor = Color.FromArgb(54, 134, 50);
+                    this.label1.Text = "Descarga satisfactoria";
                     break;
             }
+            this.Refresh();
         }
 
         void bloquearIn()
@@ -273,20 +277,22 @@ namespace cliente
 
         void mensajeLog(String cadena)
         {
-            this.textBox2.Text += DateTime.Now.ToString("t", CultureInfo.CreateSpecificCulture("hr-HR")) + " >> " + cadena + "\r\n\r\n";
+            this.textBox2.AppendText(DateTime.Now.ToString("t", CultureInfo.CreateSpecificCulture("hr-HR")) + " >> " + cadena + "\r\n\r\n");
         }
 
         void mostrarImagen()
         {
             Image img = Image.FromFile(nomFichero);
             imagen.Image = img;
-            imagen.SizeMode = PictureBoxSizeMode.Zoom;
-            /*
-            imagen.Size = img.Size;
-            if(imagen.Width > imagen.Height){
-                imagen.Width = 533;
-                imagen.Height = (481 * imagen.Height) / 533;
-            }*/
+            if(img.Width > imagen.Width || img.Height > imagen.Height){
+                imagen.SizeMode = PictureBoxSizeMode.Zoom;
+                Console.WriteLine("si");
+            }
+            else
+            {
+                imagen.SizeMode = PictureBoxSizeMode.CenterImage;
+                Console.WriteLine("no");
+            }
         }
 
         void ventanaCerrada(object sender, System.Windows.Forms.FormClosedEventArgs e)
@@ -345,6 +351,11 @@ namespace cliente
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged_1(object sender, EventArgs e)
         {
 
         }

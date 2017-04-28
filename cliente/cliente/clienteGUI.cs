@@ -40,9 +40,12 @@ namespace cliente
         private const int IDENTIFICANDO = 7;
         private const int DESCARGADO = 8;
 
+        String[] formatosImagen;
+
         public clienteGUI()
         {
             InitializeComponent();
+            inicializarFormatos();
             this.botonConectar.Click += botonConectar_Click;
             hilo = new Thread(inicializarInfoCliente);
             hilo.Start();
@@ -51,6 +54,16 @@ namespace cliente
             fs = null;
             bw = null;
             bufferIn = new byte[1048576];
+        }
+
+        private void inicializarFormatos()
+        {
+            formatosImagen = new String[5];
+            formatosImagen[0] = ".jpg";
+            formatosImagen[1] = ".jpeg";
+            formatosImagen[2] = ".gif";
+            formatosImagen[3] = ".png";
+            formatosImagen[4] = ".bmp";
         }
 
         private void inicializarInfoCliente()
@@ -139,6 +152,7 @@ namespace cliente
                 cerrarFichero();
                 mostrarImagen();
 
+                mensajeLog("Listo");
                 estadoFoot(LISTO);
                 habilitarIn();
             }
@@ -277,21 +291,31 @@ namespace cliente
 
         void mensajeLog(String cadena)
         {
-            this.textBox2.AppendText(DateTime.Now.ToString("t", CultureInfo.CreateSpecificCulture("hr-HR")) + " >> " + cadena + "\r\n\r\n");
+            this.textBox2.AppendText(DateTime.Now.ToString("HH:mm:ss") + " >> " + cadena + "\r\n\r\n");
         }
 
         void mostrarImagen()
         {
-            Image img = Image.FromFile(nomFichero);
-            imagen.Image = img;
-            if(img.Width > imagen.Width || img.Height > imagen.Height){
-                imagen.SizeMode = PictureBoxSizeMode.Zoom;
-                Console.WriteLine("si");
+            bool flag = false;
+            foreach (String format in formatosImagen){
+                if(nomFichero.EndsWith(format)){
+                    flag = true;
+                }
+            }
+            if (flag)
+            {
+                Image img = Image.FromFile(nomFichero);
+                imagen.Image = img;
+                if (img.Width > imagen.Width || img.Height > imagen.Height)
+                    imagen.SizeMode = PictureBoxSizeMode.Zoom;
+                else
+                    imagen.SizeMode = PictureBoxSizeMode.CenterImage;
+                mensajeLog("Imagen renderizada correctamente");
             }
             else
             {
-                imagen.SizeMode = PictureBoxSizeMode.CenterImage;
-                Console.WriteLine("no");
+                mensajeLog("No se puede abrir imagen. Formato Inválido");
+                MessageBox.Show("El archivo recibido no es una imagen válida", "Formato inválido", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
         }
 

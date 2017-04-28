@@ -50,21 +50,17 @@ public class Servidor extends JFrame {
         f = a;
         try {
             server = new ServerSocket(5000);
-            System.out.println("Servidor Listo... Esperando Cliente...");
             inicializaComponentes();
         } catch (IOException ex) {
-            System.out.println("Problema al iniciar el servidor");
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
         socket = new Socket();
         try {
             socket = server.accept();
-            System.out.println("Cliente conectado...");
             dout = new DataOutputStream(socket.getOutputStream());
             din = new DataInputStream(socket.getInputStream());
             bin = new BufferedInputStream(new FileInputStream(f));
             text1.setText("Cliente conectado...");
-            enviar.setEnabled(true);
         } catch (IOException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -77,11 +73,27 @@ public class Servidor extends JFrame {
                 tokens = new StringTokenizer(cadena, "?\n");
                 ip = tokens.nextToken();
                 nombre = tokens.nextToken();
-                System.out.println("Cliente  >> IP: " + ip + " Nombre: " + nombre);
                 ipclient.setText(ipclient.getText() + " " + ip);
                 nameclient.setText(nameclient.getText() + " " + nombre);
                 ipclient.setVisible(true);
                 nameclient.setVisible(true);
+            }
+            //server  ** NOMBRE ARCHIVO - PESO **
+            out = new byte[tambytes];
+            cadena = f.getName() + "?" + f.length() + "\n";
+            out = cadena.getBytes(StandardCharsets.UTF_8);
+            dout.write(out, 0, out.length);
+            dout.flush();
+
+            //client ** VERIFICACION - NOMBRE - PESO **
+            String aux = "";
+            in = new byte[tambytes];
+            bytes = din.read(in, 0, in.length);
+            if (bytes > 0) {
+                aux = new String(in, 0, bytes, StandardCharsets.UTF_8);
+            }
+            if (aux.equals(cadena)) {
+                enviar.setEnabled(true);
             }
         } catch (IOException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
@@ -228,45 +240,24 @@ public class Servidor extends JFrame {
     }
 
     private void enviarArchivo() {
-        try {
             enviar.setEnabled(false);
-            //server  ** NOMBRE ARCHIVO - PESO **
+        try {
+            //server  ** IMAGEN **
             out = new byte[tambytes];
-            cadena = f.getName() + "?" + f.length() + "\n";
-            out = cadena.getBytes(StandardCharsets.UTF_8);
-            dout.write(out, 0, out.length);
-            dout.flush();
-            System.out.println("Servidor >> " + cadena);
-
-            //client ** VERIFICACION - NOMBRE - PESO **
-            String aux = "";
-            in = new byte[tambytes];
-            bytes = din.read(in, 0, in.length);
-            if (bytes > 0) {
-                aux = new String(in, 0, bytes, StandardCharsets.UTF_8);
-                System.out.println("Cliente  >> " + aux);
-            }
-            if (aux.equals(cadena)) {
-                //server  ** IMAGEN **
-                System.out.println("Servidor >> Enviando Imagen");
-                out = new byte[tambytes];
+            bytes = bin.read(out, 0, out.length);
+            while (bytes > 0) {
+                dout.write(out, 0, bytes);
+                dout.flush();
                 bytes = bin.read(out, 0, out.length);
-                while (bytes > 0) {
-                    dout.write(out, 0, bytes);
-                    dout.flush();
-                    bytes = bin.read(out, 0, out.length);
-                    sleep(50);
-                }
-                System.out.println("Servidor >> Imagen Enviada");
-                msjentrega.setVisible(true);
+                sleep(50);
             }
+            msjentrega.setVisible(true);
             //client ** FIN **
             String exit = "";
             in = new byte[tambytes];
             bytes = din.read(in, 0, in.length);
             if (bytes > 0) {
                 exit = new String(in, 0, bytes, StandardCharsets.UTF_8);
-                System.out.println("Cliente  >> " + exit);
             }
             fin.setVisible(true);
             dout.close();

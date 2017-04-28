@@ -20,9 +20,13 @@ namespace cliente
         String clienteIP;
         String nombrePC;
         String serverIP;
+        String nomFichero;
+        long tamano;
         private Thread hilo;
         TcpClient sCliente;
         NetworkStream sStream;
+        FileStream fs;
+        BinaryWriter bw;
         byte[] bufferIn;
         byte[] bufferOut;
 
@@ -33,6 +37,8 @@ namespace cliente
         private const int DESCARGANDO = 4;
         private const int FINAL = 5;
         private const int ESPERANDO = 6;
+        private const int IDENTIFICANDO = 7;
+        private const int DESCARGADO = 8;
 
         public clienteGUI()
         {
@@ -42,6 +48,8 @@ namespace cliente
             hilo.Start();
             sCliente = null;
             sStream = null;
+            fs = null;
+            bw = null;
             bufferIn = new byte[1048576];
         }
 
@@ -77,10 +85,11 @@ namespace cliente
 
         void conectar()
         {
+            String cad;
+            bloquearIn();
+            estadoFoot(CONECTANDO);
             serverIP = this.textIP.Text;
-            this.label1.Text = "Conectando...";
             mensajeLog("Buscando servidor en " + serverIP);
-            this.botonConectar.Enabled = false;
             sCliente = new TcpClient();
             try
             {
@@ -92,21 +101,41 @@ namespace cliente
                 mensajeLog(e.Message);
                 MessageBox.Show("Ocurrio un error al realizar la conexión.\nVerifique la dirección del servidor y vuelva a intentar", e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 estadoFoot(LISTO);
-                this.botonConectar.Enabled = true;
                 return;
             }
 
             mensajeLog("Conectado a "+serverIP);
             sStream = sCliente.GetStream();
+            estadoFoot(IDENTIFICANDO);
 
             try
             {
-                bufferOut = Encoding.UTF8.GetBytes(clienteIP + "?" + nombrePC);
+                //enviar informacion del cliente
                 mensajeLog("Enviando identificación del cliente");
-                mensajeLog("Nombre: "+nombrePC+"\r\n              Direccion Local: "+clienteIP);
-                sStream.Flush();
-                sStream.Write(bufferOut, 0, bufferOut.Length);
+                mensajeLog("Nombre: " + nombrePC + "\r\n              Direccion Local: " + clienteIP);
+                enviarInfoCliente();
                 mensajeLog("Identificación enviada");
+
+                //recibir informacion del archivo (imagen)
+                cad = obtenerInfoFichero();
+                mensajeLog("Nombre: " + nomFichero + "\r\n              Tamaño: " + tamano);
+
+                //crear archivo
+                mensajeLog("Creando " + nomFichero);
+                abrirFichero();
+                mensajeLog(nomFichero + " ha sido creado");
+
+                //aceptar transmision
+                aceptarTransmision(cad);
+                mensajeLog("Transmision aceptada");
+                estadoFoot(ESPERANDO);
+                mensajeLog("Esperando a que el servidor comience la transmisión");
+
+                //recibir archivo
+                recibir();
+
+                estadoFoot(LISTO);
+                habilitarIn();
             }
             catch (IOException e)
             {
@@ -114,12 +143,66 @@ namespace cliente
                 mensajeLog(e.Message);
                 MessageBox.Show(e.ToString(), e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 estadoFoot(LISTO);
-                this.botonConectar.Enabled = true;
+                habilitarIn();
                 return;
             }
 
             
 
+        }
+
+        void enviarInfoCliente()
+        {
+            bufferOut = Encoding.UTF8.GetBytes(clienteIP + "?" + nombrePC);
+            sStream.Flush();
+            sStream.Write(bufferOut, 0, bufferOut.Length);
+        }
+
+        String obtenerInfoFichero()
+        {
+            String[] cadena;
+            String cad;
+            int bytes;
+            bytes = sStream.Read(bufferIn, 0, bufferIn.Length);
+            cad = Encoding.UTF8.GetString(bufferIn, 0, bytes);
+            cadena = cad.Split('?');
+            nomFichero = cadena[0];
+            tamano = Int64.Parse(cadena[1]);
+            return cad;
+        }
+
+        void aceptarTransmision(String cad)
+        {
+            sStream.Flush();
+            bufferOut = Encoding.UTF8.GetBytes(cad);
+            sStream.Write(bufferOut, 0, bufferOut.Length);
+            sStream.Flush();
+        }
+
+        void recibir()
+        {
+            long total = 0;
+            int bytes;
+            bool first = true;
+            while (total < tamano)
+            {
+                bytes = sStream.Read(bufferIn, 0, bufferIn.Length);
+                if (bytes > 0)
+                {
+                    if (first)
+                    {
+                        mensajeLog("Comienza la transmisión");
+                        estadoFoot(DESCARGANDO);
+                        first = false;
+                    }
+                    bw.Write(bufferIn, 0, bytes);
+                    total += bytes;
+                }
+            }
+            mensajeLog("Imagen recibida satisfactoriamente");
+            estadoFoot(DESCARGADO);
+            MessageBox.Show("Imagen recibida satisfactoriamente", "Exito!!!", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            sStream.Flush();
         }
 
         void cerrarConexion()
@@ -148,14 +231,40 @@ namespace cliente
                     this.panel1.BackColor = Color.FromArgb(104, 33, 122);
                     break;
                 case DESCARGANDO:
-                    this.label1.Text = "Recibiendo...";
-                    this.panel1.BackColor = Color.FromArgb(21, 194, 60);
+                    this.label1.Text = "Recibiendo imagen...";
+                    this.panel1.BackColor = Color.FromArgb(54, 134, 50);
                     break;
                 case ESPERANDO:
                     this.label1.Text = "Esperando transmisión...";
-                    this.panel1.BackColor = Color.FromArgb(21, 194, 60);
+                    this.panel1.BackColor = Color.FromArgb(202, 81, 0);
+                    break;
+                case IDENTIFICANDO:
+                    this.label1.Text = "Identificandose...";
+                    this.panel1.BackColor = Color.FromArgb(104, 33, 122);
+                    break;
+                case DESCARGADO:
+                    this.label1.Text = "Descarga satisfactoria";
+                    this.panel1.BackColor = Color.FromArgb(54, 134, 50);
                     break;
             }
+        }
+
+        void bloquearIn()
+        {
+            this.textIP.Enabled = false;
+            this.botonConectar.Enabled = false;
+        }
+
+        void habilitarIn()
+        {
+            this.textIP.Enabled = true;
+            this.botonConectar.Enabled = true;
+        }
+
+        void abrirFichero()
+        {
+            fs = new FileStream(nomFichero, FileMode.Create);
+            bw = new BinaryWriter(fs);
         }
 
         void mensajeLog(String cadena)

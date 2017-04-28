@@ -97,7 +97,7 @@ namespace cliente
                 Console.WriteLine(e.ToString());
             }
         }
-
+        
         void recibirInfo()
         {
             try

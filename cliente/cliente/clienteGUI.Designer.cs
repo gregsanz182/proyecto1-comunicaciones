@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
 namespace cliente
 {
     partial class clienteGUI
@@ -30,7 +32,7 @@ namespace cliente
         private void InitializeComponent()
         {
             this.labelServerIP = new System.Windows.Forms.Label();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.textIP = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.labelTextMaquina = new System.Windows.Forms.Label();
             this.labelLocalIP = new System.Windows.Forms.Label();
@@ -39,29 +41,35 @@ namespace cliente
             this.botonConectar = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.vistPrevPan = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // labelServerIP
             // 
             this.labelServerIP.AutoSize = true;
-            this.labelServerIP.Location = new System.Drawing.Point(444, 10);
+            this.labelServerIP.Location = new System.Drawing.Point(5, 21);
             this.labelServerIP.Name = "labelServerIP";
             this.labelServerIP.Size = new System.Drawing.Size(125, 13);
             this.labelServerIP.TabIndex = 0;
             this.labelServerIP.Text = "Dirección IP del servidor:";
-            this.labelServerIP.Click += new System.EventHandler(this.label1_Click);
+            this.labelServerIP.Click += new System.EventHandler(this.textIP_Click);
             // 
-            // textBox1
+            // textIP
             // 
-            this.textBox1.Enabled = false;
-            this.textBox1.Location = new System.Drawing.Point(447, 26);
-            this.textBox1.MaxLength = 15;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(204, 20);
-            this.textBox1.TabIndex = 1;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.textIP.Enabled = false;
+            this.textIP.Location = new System.Drawing.Point(8, 37);
+            this.textIP.MaxLength = 15;
+            this.textIP.Name = "textIP";
+            this.textIP.Size = new System.Drawing.Size(294, 20);
+            this.textIP.TabIndex = 1;
+            this.textIP.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // groupBox1
             // 
@@ -69,9 +77,9 @@ namespace cliente
             this.groupBox1.Controls.Add(this.labelLocalIP);
             this.groupBox1.Controls.Add(this.labelMaquina);
             this.groupBox1.Controls.Add(this.labelTextLocalIP);
-            this.groupBox1.Location = new System.Drawing.Point(29, 10);
+            this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(377, 86);
+            this.groupBox1.Size = new System.Drawing.Size(308, 86);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Detalles del Cliente";
@@ -117,9 +125,9 @@ namespace cliente
             // botonConectar
             // 
             this.botonConectar.Enabled = false;
-            this.botonConectar.Location = new System.Drawing.Point(447, 52);
+            this.botonConectar.Location = new System.Drawing.Point(8, 62);
             this.botonConectar.Name = "botonConectar";
-            this.botonConectar.Size = new System.Drawing.Size(204, 43);
+            this.botonConectar.Size = new System.Drawing.Size(294, 56);
             this.botonConectar.TabIndex = 3;
             this.botonConectar.Text = "Conectar";
             this.botonConectar.UseVisualStyleBackColor = true;
@@ -128,9 +136,9 @@ namespace cliente
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(202)))), ((int)(((byte)(81)))), ((int)(((byte)(0)))));
             this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(0, 384);
+            this.panel1.Location = new System.Drawing.Point(0, 525);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(684, 27);
+            this.panel1.Size = new System.Drawing.Size(886, 27);
             this.panel1.TabIndex = 5;
             // 
             // label1
@@ -144,16 +152,58 @@ namespace cliente
             this.label1.Text = "Preparando...";
             this.label1.Click += new System.EventHandler(this.label1_Click_2);
             // 
+            // textBox2
+            // 
+            this.textBox2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(249)))), ((int)(((byte)(249)))), ((int)(((byte)(249)))));
+            this.textBox2.Location = new System.Drawing.Point(6, 19);
+            this.textBox2.Multiline = true;
+            this.textBox2.Name = "textBox2";
+            this.textBox2.ReadOnly = true;
+            this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox2.Size = new System.Drawing.Size(294, 263);
+            this.textBox2.TabIndex = 7;
+            // 
+            // vistPrevPan
+            // 
+            this.vistPrevPan.Location = new System.Drawing.Point(327, 13);
+            this.vistPrevPan.Name = "vistPrevPan";
+            this.vistPrevPan.Size = new System.Drawing.Size(545, 506);
+            this.vistPrevPan.TabIndex = 8;
+            this.vistPrevPan.TabStop = false;
+            this.vistPrevPan.Text = "Vista Previa";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.textBox2);
+            this.groupBox2.Location = new System.Drawing.Point(13, 231);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(306, 288);
+            this.groupBox2.TabIndex = 9;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Log";
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.botonConectar);
+            this.groupBox3.Controls.Add(this.labelServerIP);
+            this.groupBox3.Controls.Add(this.textIP);
+            this.groupBox3.Location = new System.Drawing.Point(13, 104);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(308, 124);
+            this.groupBox3.TabIndex = 10;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Detalles del Servidor";
+            // 
             // clienteGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(684, 411);
+            this.ClientSize = new System.Drawing.Size(884, 552);
+            this.Controls.Add(this.groupBox3);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.vistPrevPan);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.botonConectar);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.labelServerIP);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -163,15 +213,19 @@ namespace cliente
             this.groupBox1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
+
 
         #endregion
 
         private System.Windows.Forms.Label labelServerIP;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox textIP;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label labelLocalIP;
         private System.Windows.Forms.Label labelTextLocalIP;
@@ -180,5 +234,9 @@ namespace cliente
         private System.Windows.Forms.Button botonConectar;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label label1;
+        private TextBox textBox2;
+        private GroupBox vistPrevPan;
+        private GroupBox groupBox2;
+        private GroupBox groupBox3;
     }
 }

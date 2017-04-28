@@ -100,6 +100,11 @@ namespace cliente
 
         void conectar()
         {
+            if (imagen.Image != null)
+            {
+                imagen.Image.Dispose();
+                imagen.Image = null;
+            }
             String cad;
             bloquearIn();
             estadoFoot(CONECTANDO);
@@ -114,7 +119,8 @@ namespace cliente
             {
                 estadoFoot(ERROR);
                 mensajeLog(e.Message);
-                MessageBox.Show("Ocurrio un error al realizar la conexión.\nVerifique la dirección del servidor y vuelva a intentar", e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                sCliente.Close();
+                MessageBox.Show(e.Message, "Ocurrio un error al realizar la conexión.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 estadoFoot(LISTO);
                 habilitarIn();
                 return;
@@ -136,11 +142,6 @@ namespace cliente
                 cad = obtenerInfoFichero();
                 mensajeLog("Nombre: " + nomFichero + "\r\n              Tamaño: " + tamano);
 
-                //crear archivo
-                mensajeLog("Creando " + nomFichero);
-                abrirFichero();
-                mensajeLog(nomFichero + " ha sido creado");
-
                 //aceptar transmision
                 aceptarTransmision(cad);
                 mensajeLog("Transmision aceptada");
@@ -150,6 +151,11 @@ namespace cliente
                 //recibir archivo
                 recibir();
                 cerrarFichero();
+
+                //cerrando conexion
+                mensajeLog("Cerrando conexión");
+                cerrarConexion();
+                mensajeLog("Conexión finalizada correctamente");
                 mostrarImagen();
 
                 mensajeLog("Listo");
@@ -161,6 +167,16 @@ namespace cliente
                 estadoFoot(ERROR);
                 mensajeLog(e.Message);
                 MessageBox.Show(e.ToString(), e.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                sCliente.Close();
+                sStream.Close();
+                if (fs != null)
+                {
+                    fs.Close();
+                }
+                if (bw != null)
+                {
+                    bw.Close();
+                }
                 estadoFoot(LISTO);
                 habilitarIn();
                 return;
@@ -211,6 +227,7 @@ namespace cliente
                     if (first)
                     {
                         mensajeLog("Comienza la transmisión");
+                        abrirFichero();
                         estadoFoot(DESCARGANDO);
                         first = false;
                     }
@@ -224,6 +241,15 @@ namespace cliente
             sStream.Flush();
         }
 
+        void cerrarConexion()
+        {
+            sStream.Flush();
+            bufferOut = Encoding.UTF8.GetBytes("fin");
+            sStream.Write(bufferOut, 0, bufferOut.Length);
+            sStream.Flush();
+            sStream.Close();
+            sCliente.Close();
+        }
 
         void estadoFoot(int tipo)
         {
@@ -298,7 +324,7 @@ namespace cliente
         {
             bool flag = false;
             foreach (String format in formatosImagen){
-                if(nomFichero.EndsWith(format)){
+                if(nomFichero.ToLower().EndsWith(format)){
                     flag = true;
                 }
             }

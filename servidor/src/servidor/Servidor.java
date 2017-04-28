@@ -259,12 +259,14 @@ public class Servidor extends JFrame {
             if (bytes > 0) {
                 exit = new String(in, 0, bytes, StandardCharsets.UTF_8);
             }
-            fin.setVisible(true);
-            dout.close();
-            din.close();
-            bin.close();
-            socket.close();
-            text1.setText("Cliente Desconectado...");
+            if(exit.equals("fin")){
+                fin.setVisible(true);
+                dout.close();
+                din.close();
+                bin.close();
+                socket.close();
+                text1.setText("Cliente Desconectado...");
+            }
         } catch (IOException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {

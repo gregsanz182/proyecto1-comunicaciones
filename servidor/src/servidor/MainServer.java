@@ -15,7 +15,8 @@ public class MainServer {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        Servidor S = new Servidor();
+        Archivo a = new Archivo();
+        Servidor S = new Servidor(a.buscarArchivo());
     }
 
 }

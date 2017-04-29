@@ -47,6 +47,8 @@ namespace cliente
             InitializeComponent();
             inicializarFormatos();
             this.botonConectar.Click += botonConectar_Click;
+            this.textIP.KeyPress += textIPPort_KeyPress;
+            this.textPuerto.KeyPress += textIPPort_KeyPress;
             hilo = new Thread(inicializarInfoCliente);
             hilo.Start();
             sCliente = null;
@@ -295,11 +297,13 @@ namespace cliente
         {
             this.textIP.Enabled = false;
             this.botonConectar.Enabled = false;
+            this.textPuerto.Enabled = false;
         }
 
         void habilitarIn()
         {
             this.textIP.Enabled = true;
+            this.textPuerto.Enabled = true;
             this.botonConectar.Enabled = true;
         }
 
@@ -353,6 +357,14 @@ namespace cliente
         void botonConectar_Click(object sender, EventArgs e)
         {
             conectar();
+        }
+
+        void textIPPort_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                conectar();
+            }
         }
 
         private void textIP_Click(object sender, EventArgs e)

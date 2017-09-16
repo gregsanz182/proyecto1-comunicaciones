@@ -27,10 +27,19 @@ public class Servidor extends JFrame {
     DataOutputStream dout;
     DataInputStream din;
     BufferedInputStream bin;
+
+    DatagramSocket socketUDP;
+    DatagramPacket paquete;
+    byte[] buffer;
+    int puerto;
+    int puertoResp;
+
     byte[] out, in;
     File f;
     int bytes, width, height, x, y, w, h;
     String ip, nombre, cadena;
+    String mensajeUdp;
+    String mensajeUdpRespuesta;
     StringTokenizer tokens;
     static final int tambytes = 1048576; // 1Mb
     //--------------------------------------------
@@ -40,7 +49,7 @@ public class Servidor extends JFrame {
     Icon icon;
     JButton enviar;
 
-    public Servidor(File a) {
+    public Servidor(File a) throws InterruptedException {
         server = null;
         socket = null;
         tokens = null;
@@ -48,11 +57,47 @@ public class Servidor extends JFrame {
         width = 700;
         height = 500;
         f = a;
+        mensajeUdp = "mabel mabel mabel ma ma ma mabel mabel";
+        mensajeUdpRespuesta = "dipper";
+
+        socketUDP = null;
+        puerto = 5000;
+        puertoResp = 5001;
+        buffer = new byte[1000];
+
         try {
-            server = new ServerSocket(5000);
-            inicializaComponentes();
+            socketUDP = new DatagramSocket(puerto);
+        } catch (SocketException ex) {
+            System.out.println("socket: " + ex.getMessage());
+        }
+        inicializaComponentes();
+        paquete = new DatagramPacket(buffer, buffer.length);
+        String mensaje = "";
+        try {
+            do{
+                socketUDP.receive(paquete);
+                mensaje = new String(paquete.getData(), StandardCharsets.UTF_8);
+                sleep(250);
+            }while(mensaje.equals(mensajeUdp));
         } catch (IOException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Socket: " + ex.getMessage());
+        }
+        System.out.println("Cliente que pide conexion: " + paquete.getAddress().toString().replaceAll("/", ""));
+        System.out.println("Con este mensaje: " + mensaje);
+        ip = paquete.getAddress().toString().replaceAll("/", "");
+        buffer = mensajeUdpRespuesta.getBytes(StandardCharsets.UTF_8);
+        paquete = new DatagramPacket(buffer, buffer.length, paquete.getAddress(), puertoResp);
+        sleep(3000);
+        try {
+            socketUDP.send(paquete);
+        } catch (IOException ex) {
+            System.out.println("Socket: " + ex.getMessage());
+        }
+        socketUDP.close();
+        try {
+            server = new ServerSocket(puerto);
+        } catch (IOException ex) {
+            System.out.println("Server: " + ex.getMessage());
         }
         socket = new Socket();
         try {
@@ -62,7 +107,7 @@ public class Servidor extends JFrame {
             bin = new BufferedInputStream(new FileInputStream(f));
             text1.setText("Cliente conectado...");
         } catch (IOException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("Server: " + ex.getMessage());
         }
         try {
             //client  ** IP - NOMBRE **
@@ -71,7 +116,6 @@ public class Servidor extends JFrame {
             if (bytes > 0) {
                 cadena = new String(in, 0, bytes, StandardCharsets.UTF_8);
                 tokens = new StringTokenizer(cadena, "?\n");
-                ip = tokens.nextToken();
                 nombre = tokens.nextToken();
                 ipclient.setText(ipclient.getText() + " " + ip);
                 nameclient.setText(nameclient.getText() + " " + nombre);
@@ -135,13 +179,13 @@ public class Servidor extends JFrame {
         ventana = new JPanel();
         ventana.setLayout(null);
         ventana.setPreferredSize(new Dimension(width, height));
-        ventana.setBackground(Color.decode("#E4F7CA"));
+        ventana.setBackground(Color.decode("#FFFFFF"));
         //----------------------CABECERA--------------------------------
         cabecera = new JPanel();
         cabecera.setLayout(null);
         cabecera.setBounds(x, y, width - 40, 120);
-        cabecera.setBackground(Color.decode("#E4F7CA"));
-        cabecera.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+        cabecera.setBackground(Color.decode("#FFFFFF"));
+        cabecera.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         //--------------------------------------------------------------
         w = (cabecera.getWidth() / 2) - 40;
         text1 = new JLabel("Esperando conexion del cliente...");
@@ -169,8 +213,8 @@ public class Servidor extends JFrame {
         panelImagen = new JPanel();
         panelImagen.setLayout(null);
         panelImagen.setBounds(x, 160, width - 40, height - 180);
-        panelImagen.setBackground(Color.decode("#E4F7CA"));
-        panelImagen.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+        panelImagen.setBackground(Color.decode("#FFFFFF"));
+        panelImagen.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         //--------------------------------------------------------------
         contImagen = new JLabel();
         contImagen.setVisible(true);
@@ -240,7 +284,7 @@ public class Servidor extends JFrame {
     }
 
     private void enviarArchivo() {
-            enviar.setEnabled(false);
+        enviar.setEnabled(false);
         try {
             //server  ** IMAGEN **
             out = new byte[tambytes];
@@ -259,7 +303,7 @@ public class Servidor extends JFrame {
             if (bytes > 0) {
                 exit = new String(in, 0, bytes, StandardCharsets.UTF_8);
             }
-            if(exit.equals("fin")){
+            if (exit.equals("fin")) {
                 fin.setVisible(true);
                 dout.close();
                 din.close();

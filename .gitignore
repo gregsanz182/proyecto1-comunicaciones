@@ -1,5 +1,6 @@
-/servidor/1.jpg
+servidor/1.jpg
 cliente/cliente/obj/
 cliente/cliente/bin/
-/servidor/imagen.jpg
+servidor/imagen.jpg
 *.suo
+servidor/build/

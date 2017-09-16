@@ -13,7 +13,7 @@ public class MainServer {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // TODO code application logic here
         Archivo a = new Archivo();
         Servidor S = new Servidor(a.buscarArchivo());

@@ -2,3 +2,4 @@
 cliente/cliente/obj/
 cliente/cliente/bin/
 /servidor/imagen.jpg
+*.suo

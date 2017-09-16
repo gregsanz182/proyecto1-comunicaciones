@@ -21,12 +21,16 @@ namespace cliente
         String nombrePC;
         String serverIP;
         String nomFichero;
+        String udpMensaje;
+        String udpMensajeRespuesta;
         long tamano;
         private Thread hilo;
         TcpClient sCliente;
         NetworkStream sStream;
         FileStream fs;
         BinaryWriter bw;
+        int port;
+        int rPort;
         byte[] bufferIn;
         byte[] bufferOut;
 
@@ -47,15 +51,17 @@ namespace cliente
             InitializeComponent();
             inicializarFormatos();
             this.botonConectar.Click += botonConectar_Click;
-            this.textIP.KeyPress += textIPPort_KeyPress;
-            this.textPuerto.KeyPress += textIPPort_KeyPress;
             hilo = new Thread(inicializarInfoCliente);
             hilo.Start();
             sCliente = null;
             sStream = null;
             fs = null;
             bw = null;
-            bufferIn = new byte[1048576];
+            clearBufferIn();
+            port = 5000;
+            rPort = 5001;
+            udpMensaje = "mabel mabel mabel ma ma ma mabel mabel";
+            udpMensajeRespuesta = "dipper";
         }
 
         private void inicializarFormatos()
@@ -66,6 +72,11 @@ namespace cliente
             formatosImagen[2] = ".gif";
             formatosImagen[3] = ".png";
             formatosImagen[4] = ".bmp";
+        }
+
+        private void clearBufferIn()
+        {
+            bufferIn = new byte[1048576]; 
         }
 
         private void inicializarInfoCliente()
@@ -81,7 +92,6 @@ namespace cliente
         {
             this.labelTextLocalIP.Text = clienteIP;
             this.labelTextMaquina.Text = nombrePC;
-            this.textIP.Enabled = true;
             this.botonConectar.Enabled = true;
             mensajeLog("Listo");
             estadoFoot(LISTO);
@@ -97,7 +107,7 @@ namespace cliente
                     return ip.ToString();
                 }
             }
-            return "0.0.0.0";
+            return "No hay adaptador de red presente";
         }
 
         void conectar()
@@ -110,12 +120,13 @@ namespace cliente
             String cad;
             bloquearIn();
             estadoFoot(CONECTANDO);
-            serverIP = this.textIP.Text;
-            mensajeLog("Buscando servidor en " + serverIP);
+            serverIP = buscarServidor();
+            label2.Text = serverIP.ToString();
+            mensajeLog("Conectando con servidor en " + serverIP);
             sCliente = new TcpClient();
             try
             {
-                sCliente.Connect(serverIP, 5000);
+                sCliente.Connect(serverIP, port);
             }
             catch (SocketException e)
             {
@@ -195,11 +206,45 @@ namespace cliente
             sStream.Write(bufferOut, 0, bufferOut.Length);
         }
 
+        String buscarServidor()
+        {
+            mensajeLog("Buscando servidor");
+            UdpClient udp = new UdpClient();
+            IPEndPoint ip = new IPEndPoint(IPAddress.Broadcast, port);
+            bufferOut = Encoding.UTF8.GetBytes(udpMensaje);
+            udp.Send(bufferOut, bufferOut.Length, ip);
+            mensajeLog("Enviando mensaje broadcast");
+            udp.Close();
+
+            UdpClient udp2 = new UdpClient();
+            IPEndPoint ip2 = new IPEndPoint(IPAddress.Any, rPort);
+            udp2.Client.Bind(ip2);
+            mensajeLog("Esperando respuesta de broadcast...");
+            while (true)
+            {
+                if (udp2.Available > 0)
+                {
+                    bufferIn = udp2.Receive(ref ip2);
+                    String message = Encoding.UTF8.GetString(bufferIn);
+                    Console.WriteLine("From {0} recieved {1}", message, ip2.Address.ToString());
+                    if (message == udpMensajeRespuesta)
+                    {
+                        mensajeLog("Respuesta recibida. IP del servidor es: " + ip2.Address.ToString());
+                        return ip2.Address.ToString();
+                    }
+
+                }
+            }
+
+            return "[Presione \"Conectar\" para buscar]";
+        }
+
         String obtenerInfoFichero()
         {
             String[] cadena;
             String cad;
             int bytes;
+            clearBufferIn();
             bytes = sStream.Read(bufferIn, 0, bufferIn.Length);
             cad = Encoding.UTF8.GetString(bufferIn, 0, bytes);
             cadena = cad.Split('?');
@@ -223,6 +268,7 @@ namespace cliente
             bool first = true;
             while (total < tamano)
             {
+                clearBufferIn();
                 bytes = sStream.Read(bufferIn, 0, bufferIn.Length);
                 if (bytes > 0)
                 {
@@ -295,15 +341,11 @@ namespace cliente
 
         void bloquearIn()
         {
-            this.textIP.Enabled = false;
             this.botonConectar.Enabled = false;
-            this.textPuerto.Enabled = false;
         }
 
         void habilitarIn()
         {
-            this.textIP.Enabled = true;
-            this.textPuerto.Enabled = true;
             this.botonConectar.Enabled = true;
         }
 
@@ -359,14 +401,6 @@ namespace cliente
             conectar();
         }
 
-        void textIPPort_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)Keys.Enter)
-            {
-                conectar();
-            }
-        }
-
         private void textIP_Click(object sender, EventArgs e)
         {
 
@@ -418,6 +452,11 @@ namespace cliente
         }
 
         private void textBox1_TextChanged_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click_1(object sender, EventArgs e)
         {
 
         }

@@ -32,7 +32,6 @@ namespace cliente
         private void InitializeComponent()
         {
             this.labelServerIP = new System.Windows.Forms.Label();
-            this.textIP = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.labelTextMaquina = new System.Windows.Forms.Label();
             this.labelLocalIP = new System.Windows.Forms.Label();
@@ -46,8 +45,7 @@ namespace cliente
             this.imagen = new System.Windows.Forms.PictureBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.labelPuerto = new System.Windows.Forms.Label();
-            this.textPuerto = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.vistPrevPan.SuspendLayout();
@@ -66,17 +64,6 @@ namespace cliente
             this.labelServerIP.Text = "Dirección IP del servidor:";
             this.labelServerIP.Click += new System.EventHandler(this.textIP_Click);
             // 
-            // textIP
-            // 
-            this.textIP.Enabled = false;
-            this.textIP.Location = new System.Drawing.Point(8, 37);
-            this.textIP.MaxLength = 15;
-            this.textIP.Name = "textIP";
-            this.textIP.Size = new System.Drawing.Size(188, 20);
-            this.textIP.TabIndex = 1;
-            this.textIP.Text = "127.0.0.1";
-            this.textIP.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.labelTextMaquina);
@@ -85,7 +72,7 @@ namespace cliente
             this.groupBox1.Controls.Add(this.labelTextLocalIP);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(308, 86);
+            this.groupBox1.Size = new System.Drawing.Size(258, 86);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Detalles del Cliente";
@@ -131,9 +118,9 @@ namespace cliente
             // botonConectar
             // 
             this.botonConectar.Enabled = false;
-            this.botonConectar.Location = new System.Drawing.Point(8, 62);
+            this.botonConectar.Location = new System.Drawing.Point(8, 63);
             this.botonConectar.Name = "botonConectar";
-            this.botonConectar.Size = new System.Drawing.Size(294, 56);
+            this.botonConectar.Size = new System.Drawing.Size(242, 44);
             this.botonConectar.TabIndex = 3;
             this.botonConectar.Text = "Conectar";
             this.botonConectar.UseVisualStyleBackColor = true;
@@ -166,16 +153,16 @@ namespace cliente
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
             this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox2.Size = new System.Drawing.Size(294, 263);
+            this.textBox2.Size = new System.Drawing.Size(245, 263);
             this.textBox2.TabIndex = 7;
             this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // vistPrevPan
             // 
             this.vistPrevPan.Controls.Add(this.imagen);
-            this.vistPrevPan.Location = new System.Drawing.Point(327, 13);
+            this.vistPrevPan.Location = new System.Drawing.Point(276, 13);
             this.vistPrevPan.Name = "vistPrevPan";
-            this.vistPrevPan.Size = new System.Drawing.Size(545, 506);
+            this.vistPrevPan.Size = new System.Drawing.Size(596, 506);
             this.vistPrevPan.TabIndex = 8;
             this.vistPrevPan.TabStop = false;
             this.vistPrevPan.Text = "Vista Previa";
@@ -184,7 +171,7 @@ namespace cliente
             // 
             this.imagen.Location = new System.Drawing.Point(6, 19);
             this.imagen.Name = "imagen";
-            this.imagen.Size = new System.Drawing.Size(533, 481);
+            this.imagen.Size = new System.Drawing.Size(584, 481);
             this.imagen.TabIndex = 0;
             this.imagen.TabStop = false;
             // 
@@ -193,42 +180,33 @@ namespace cliente
             this.groupBox2.Controls.Add(this.textBox2);
             this.groupBox2.Location = new System.Drawing.Point(13, 231);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(306, 288);
+            this.groupBox2.Size = new System.Drawing.Size(257, 288);
             this.groupBox2.TabIndex = 9;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Log";
             // 
             // groupBox3
             // 
-            this.groupBox3.Controls.Add(this.labelPuerto);
-            this.groupBox3.Controls.Add(this.textPuerto);
+            this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Controls.Add(this.botonConectar);
             this.groupBox3.Controls.Add(this.labelServerIP);
-            this.groupBox3.Controls.Add(this.textIP);
             this.groupBox3.Location = new System.Drawing.Point(13, 104);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(308, 124);
+            this.groupBox3.Size = new System.Drawing.Size(257, 124);
             this.groupBox3.TabIndex = 10;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Detalles del Servidor";
             // 
-            // labelPuerto
+            // label2
             // 
-            this.labelPuerto.AutoSize = true;
-            this.labelPuerto.Location = new System.Drawing.Point(199, 21);
-            this.labelPuerto.Name = "labelPuerto";
-            this.labelPuerto.Size = new System.Drawing.Size(41, 13);
-            this.labelPuerto.TabIndex = 5;
-            this.labelPuerto.Text = "Puerto:";
-            // 
-            // textPuerto
-            // 
-            this.textPuerto.Location = new System.Drawing.Point(202, 37);
-            this.textPuerto.Name = "textPuerto";
-            this.textPuerto.Size = new System.Drawing.Size(98, 20);
-            this.textPuerto.TabIndex = 4;
-            this.textPuerto.Text = "5000";
-            this.textPuerto.TextChanged += new System.EventHandler(this.textBox1_TextChanged_1);
+            this.label2.AutoSize = true;
+            this.label2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.label2.Location = new System.Drawing.Point(6, 41);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(169, 13);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "[Presione \"Conectar\" para buscar]";
+            this.label2.Click += new System.EventHandler(this.label2_Click_1);
             // 
             // clienteGUI
             // 
@@ -244,6 +222,7 @@ namespace cliente
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "clienteGUI";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "clienteGUI";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -256,7 +235,6 @@ namespace cliente
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
-            this.StartPosition = FormStartPosition.CenterScreen;
 
         }
 
@@ -264,7 +242,6 @@ namespace cliente
         #endregion
 
         private System.Windows.Forms.Label labelServerIP;
-        private System.Windows.Forms.TextBox textIP;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label labelLocalIP;
         private System.Windows.Forms.Label labelTextLocalIP;
@@ -278,7 +255,6 @@ namespace cliente
         private GroupBox groupBox2;
         private GroupBox groupBox3;
         private PictureBox imagen;
-        private Label labelPuerto;
-        private TextBox textPuerto;
+        private Label label2;
     }
 }

@@ -30,6 +30,7 @@ public class Servidor extends JFrame {
 
     DatagramSocket socketUDP;
     DatagramPacket paquete;
+    InetSocketAddress address;
     byte[] buffer;
     int puerto;
     int puertoResp;
@@ -49,7 +50,7 @@ public class Servidor extends JFrame {
     Icon icon;
     JButton enviar;
 
-    public Servidor(File a) throws InterruptedException {
+    public Servidor(File a) throws InterruptedException, UnknownHostException {
         server = null;
         socket = null;
         tokens = null;
@@ -59,16 +60,15 @@ public class Servidor extends JFrame {
         f = a;
         mensajeUdp = "mabel mabel mabel ma ma ma mabel mabel";
         mensajeUdpRespuesta = "dipper";
-
-        socketUDP = null;
-        puerto = 5000;
-        puertoResp = 5001;
+        puerto = 3010;
+        puertoResp = 3020;
         buffer = new byte[1000];
 
         try {
-            socketUDP = new DatagramSocket(puerto);
+            socketUDP = new DatagramSocket(null);
+            socketUDP.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), puerto));
         } catch (SocketException ex) {
-            System.out.println("socket: " + ex.getMessage());
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
         inicializaComponentes();
         paquete = new DatagramPacket(buffer, buffer.length);
@@ -77,6 +77,7 @@ public class Servidor extends JFrame {
             do{
                 socketUDP.receive(paquete);
                 mensaje = new String(paquete.getData(), StandardCharsets.UTF_8);
+                System.out.println("hola");
                 sleep(250);
             }while(mensaje.equals(mensajeUdp));
         } catch (IOException ex) {
@@ -87,12 +88,13 @@ public class Servidor extends JFrame {
         ip = paquete.getAddress().toString().replaceAll("/", "");
         buffer = mensajeUdpRespuesta.getBytes(StandardCharsets.UTF_8);
         paquete = new DatagramPacket(buffer, buffer.length, paquete.getAddress(), puertoResp);
-        sleep(3000);
+        sleep(2000);
         try {
             socketUDP.send(paquete);
         } catch (IOException ex) {
             System.out.println("Socket: " + ex.getMessage());
         }
+        System.out.println("se envio");
         socketUDP.close();
         try {
             server = new ServerSocket(puerto);

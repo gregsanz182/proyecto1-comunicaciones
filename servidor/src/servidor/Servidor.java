@@ -30,7 +30,6 @@ public class Servidor extends JFrame {
 
     DatagramSocket socketUDP;
     DatagramPacket paquete;
-    InetSocketAddress address;
     byte[] buffer;
     int puerto;
     int puertoResp;
@@ -60,8 +59,8 @@ public class Servidor extends JFrame {
         f = a;
         mensajeUdp = "mabel mabel mabel ma ma ma mabel mabel";
         mensajeUdpRespuesta = "dipper";
-        puerto = 3010;
-        puertoResp = 3020;
+        puerto = 3000;
+        puertoResp = 5555;
         buffer = new byte[1000];
 
         try {
@@ -74,12 +73,15 @@ public class Servidor extends JFrame {
         paquete = new DatagramPacket(buffer, buffer.length);
         String mensaje = "";
         try {
-            do{
+            do {
+                mensaje = "";
                 socketUDP.receive(paquete);
-                mensaje = new String(paquete.getData(), StandardCharsets.UTF_8);
-                System.out.println("hola");
+                tokens = new StringTokenizer(new String(paquete.getData(), StandardCharsets.UTF_8));
+                mensaje = tokens.nextToken("?");
                 sleep(250);
-            }while(mensaje.equals(mensajeUdp));
+                System.out.println(paquete.getAddress().toString());
+                System.out.println(mensaje);
+            } while (!mensaje.equals(mensajeUdp));
         } catch (IOException ex) {
             System.out.println("Socket: " + ex.getMessage());
         }
@@ -94,7 +96,6 @@ public class Servidor extends JFrame {
         } catch (IOException ex) {
             System.out.println("Socket: " + ex.getMessage());
         }
-        System.out.println("se envio");
         socketUDP.close();
         try {
             server = new ServerSocket(puerto);
@@ -116,9 +117,7 @@ public class Servidor extends JFrame {
             in = new byte[tambytes];
             bytes = din.read(in, 0, in.length);
             if (bytes > 0) {
-                cadena = new String(in, 0, bytes, StandardCharsets.UTF_8);
-                tokens = new StringTokenizer(cadena, "?\n");
-                nombre = tokens.nextToken();
+                nombre = new String(in, 0, bytes, StandardCharsets.UTF_8);
                 ipclient.setText(ipclient.getText() + " " + ip);
                 nameclient.setText(nameclient.getText() + " " + nombre);
                 ipclient.setVisible(true);

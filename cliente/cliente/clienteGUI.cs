@@ -29,8 +29,8 @@ namespace cliente
         NetworkStream sStream;
         FileStream fs;
         BinaryWriter bw;
-        int port;
-        int rPort;
+        int UDP_port, UDP_resp_port, TCP_port;
+        String ip_client, ip_broadcast;
         byte[] bufferIn;
         byte[] bufferOut;
 
@@ -50,6 +50,7 @@ namespace cliente
         {
             InitializeComponent();
             inicializarFormatos();
+            inicializarVariables();
             this.botonConectar.Click += botonConectar_Click;
             hilo = new Thread(inicializarInfoCliente);
             hilo.Start();
@@ -58,10 +59,17 @@ namespace cliente
             fs = null;
             bw = null;
             clearBufferIn();
-            port = 3010;
-            rPort = 3020;
-            udpMensaje = "mabel mabel mabel ma ma ma mabel mabel";
-            udpMensajeRespuesta = "dipper";
+        }
+
+        private void inicializarVariables()
+        {
+            ip_client = "10.0.10.8"; //IP de este cliente
+            ip_broadcast = "10.0.255.255"; //Direccion Broadcast
+            UDP_port = 3000; //Puerto de envio UDP
+            UDP_resp_port = 5555; //Puerto de recepcion UDP
+            TCP_port = 3000; //Puerto TCP
+            udpMensaje = "mabel mabel mabel ma ma ma mabel mabel?"; //mensaje boardcast UDP
+            udpMensajeRespuesta = "dipper"; //menaje de respuesta de servidor
         }
 
         private void inicializarFormatos()
@@ -122,12 +130,13 @@ namespace cliente
             bloquearIn();
             estadoFoot(CONECTANDO);
             serverIP = buscarServidor();
+            Thread.Sleep(1000);
             label2.Text = serverIP.ToString();
             mensajeLog("Conectando con servidor en " + serverIP);
             sCliente = new TcpClient();
             try
             {
-                sCliente.Connect(serverIP, port);
+                sCliente.Connect(serverIP, TCP_port);
             }
             catch (SocketException e)
             {
@@ -202,7 +211,7 @@ namespace cliente
 
         void enviarInfoCliente()
         {
-            bufferOut = Encoding.UTF8.GetBytes(clienteIP + "?" + nombrePC);
+            bufferOut = Encoding.UTF8.GetBytes(nombrePC);
             sStream.Flush();
             sStream.Write(bufferOut, 0, bufferOut.Length);
         }
@@ -210,39 +219,18 @@ namespace cliente
         String buscarServidor()
         {
             mensajeLog("Buscando servidor");
-            /* new IPEndPoint(IPAddress.Parse("10.0.1.11"), port) */
             UdpClient udp;
-            IPEndPoint ip = new IPEndPoint(IPAddress.Broadcast, port);
-            mensajeLog("Enviando mensajes broadcast");
-            foreach (var i in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
-                foreach (var ua in i.GetIPProperties().UnicastAddresses)
-                {
-                    if (ua.Address.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        Console.WriteLine(ua.Address);
-                        try
-                        {
-                            udp = new UdpClient(new IPEndPoint(ua.Address, rPort));
-                            //udp = new UdpClient(new IPEndPoint(IPAddress.Parse("10.0.10.8"), rPort));
-
-                            bufferOut = Encoding.UTF8.GetBytes(udpMensaje);
-                            udp.Send(bufferOut, bufferOut.Length, ip);
-                            udp.Close();
-                        }
-                        catch (SocketException e)
-                        {
-                            mensajeLog(e.Message);
-                        }
-                    }
-                }
-            
             UdpClient udp2 = new UdpClient();
-            IPEndPoint ip2 = new IPEndPoint(IPAddress.Any, rPort);
-            mensajeLog("Esperando respuesta de broadcast...");
+            IPEndPoint ip = new IPEndPoint(IPAddress.Parse(ip_broadcast), UDP_port);
+            udp = new UdpClient(new IPEndPoint(IPAddress.Parse(ip_client), UDP_port));
+            IPEndPoint ip2 = new IPEndPoint(IPAddress.Any, UDP_resp_port);
             udp2.Client.Bind(ip2);
+            bufferOut = Encoding.UTF8.GetBytes(udpMensaje);
+            mensajeLog("Enviando mensaje broadcast");
             while (true)
             {
-               if (udp2.Available > 0)
+                udp.Send(bufferOut, bufferOut.Length, ip);
+                if (udp2.Available > 0)
                 {
                     bufferIn = udp2.Receive(ref ip2);
                     String message = Encoding.UTF8.GetString(bufferIn);
@@ -250,10 +238,12 @@ namespace cliente
                     if (message == udpMensajeRespuesta)
                     {
                         mensajeLog("Respuesta recibida. IP del servidor es: " + ip2.Address.ToString());
+                        udp.Close();
                         return ip2.Address.ToString();
                     }
 
                 }
+                Thread.Sleep(500);
             }
 
             return "[Presione \"Conectar\" para buscar]";

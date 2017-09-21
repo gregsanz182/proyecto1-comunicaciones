@@ -1,0 +1,305 @@
+﻿
+
+
+
+
+Anny Chacón                                                          RFC-12358
+Gregory Sánchez                                       20 de Septiembre de 2017
+Universidad Nacional Experimental del Táchira
+Departamento de Ingeniería Informática
+
+
+
+
+
+
+
+                        IMAGE TRANSMISSION VIA LAN (ITVL)
+
+
+
+
+
+
+
+
+
+
+
+                                                                           Pag.
+ÍNDICE
+    INTRODUCCIÓN............................................................2
+    1 DEFINICIÓN............................................................2
+    2 DEFINICIÓN DE PROTOCOLOS NECESARIOS...................................2
+    3 ROLES.................................................................3
+        3.1 SERVIDOR........................................................3
+        3.2 CLIENTE.........................................................3
+    4 PUERTOS...............................................................3
+        4.1 PUERTOS CLIENTE.................................................3
+        4.2 PUERTOS SERVIDOR................................................3
+    5 FUNCIONAMIENTO........................................................4
+        5.1 CONEXIÓN........................................................4
+        5.2 TRANSMISIÓN.....................................................5
+        5.3 FINALIZACIÓN....................................................5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+IMAGE TRANSMISSION VIA LAN                                             [Pag. 2]
+
+
+INTRODUCCIÓN
+
+    Los diferentes protocolos de transmisión, tales como UDP (User Datagram 
+    Protocol) y TCP (Transmission Control Protocol), permiten el transporte de
+    datos por medio de las interfaces de conexión entre los computadores. 
+    Dichos protocolos aportan ventajas especificas (así como también 
+    desventajas) para la transmisión de paquetes, dependiendo sea el caso para
+    que el que se deseen utilizar.  
+	Con este documento, se busca dar una explicación sobre el objetivo y el 
+    funcionamiento de cada una de las partes que componen el presente protocolo
+    para la transmisión de imágenes.
+	Esta serie de pasos utilizan los protocolos IP (Internet Protocol), UDP 
+    (User Datagram Protocol) y TCP (Transmission Control Protocol) para 
+    transmitir los archivos de imágenes en formato JPEG, PNG, BMP y GIF a través
+    de una red de área local, contando con un servidor que se encarga de enviar
+    la imagen cuando un cliente la solicite.
+
+
+
+
+1 DEFINICIÓN
+
+    El protocolo ITVL o (Image Transmission Via LAN) presenta una serie de 
+    reglas y pasos para el envio de archivos de imagen por medio de una Red de 
+    Area Local, aprovechando los beneficios que aportan otros protocolos, tales 
+    como IP (Internet Protocol), UDP (User Datagram Protocol) y TCP 
+    (Transmission Control Protocol).
+
+	Para su funcionamiento, ITVL se compone de dos elementos: un servidor y 
+    un cliente. El servidor se encarga de manejar las peticiones y enviar la 
+    imagen deseada, y el cliente de realizar una solicitud de transferencia, 
+    además de cerrar la conexión. Tanto cliente como servidor actúan como emisor 
+    y receptor de mensajes para el acuerdo entre ambos, pero solo el servidor 
+    emite el archivo imagen y solo el cliente la recibe.
+    
+    ITVL busca un servidor en la red local para establecer una conexión y 
+    realizar la petición. Para encontrar al servidor, el cliente envía un 
+    datagram Broadcast y si existe un servidor en la red, este lo atrapa y 
+    responde con su dirección IP, para así poder establecer un canal TCP para 
+    realizar la transferencia de información.
+
+
+
+
+2 DEFINICIÓN DE PROTOCOLOS A UTILIZAR
+
+    2.1 UDP (USER DATAGRAM PROTOCOL): Este protocolo aporta un procedimiento 
+    para que los programas de aplicación puedan enviar mensajes a otros 
+    programas con un mínimo de mecanismo de protocolo.  El protocolo se orienta
+
+
+
+
+
+
+
+
+
+
+IMAGE TRANSMISSION VIA LAN                                             [Pag. 3]
+
+    a transacciones, y tanto la entrega como la protección ante duplicados no se 
+    garantizan. Es un protocolo del nivel de transporte basado en el intercambio 
+    de datagramas. Será utilizado para el envío de mensajes Broadcast, con la 
+    finalidad de que el cliente encuentre al servidor en la red local. UDP 
+    permite el envío de mensajes por medio de una red sin una previa conexión, 
+    ideal para enviar un mensaje a todos los dispositivos y así conseguir un 
+    servidor que responda a dicho mensaje.
+
+	2.2 TCP (TRANSMISSION CONTROL PROTOCOL): está pensado para ser utilizado 
+    como un protocolo 'host' a 'host' muy fiable entre miembros de redes de 
+    comunicación de computadoras por intercambio de paquetes y en un sistema 
+    interconectado de tales redes. Será utilizado para la transmisión del 
+    archivo imagen.
+
+
+
+
+3 ROLES
+
+    3.1 SERVIDOR: Es el encargado de enviar el archivo imagen al cliente. Para 
+    esto recibe una petición del cliente, y entre ellos dos llegan a un acuerdo 
+    para la transmisión de la imagen.
+
+    3.2 CLIENTE: es quien solicita la imagen, enviando un mensaje al servidor 
+    especificando su identidad. Llega a un acuerdo con el servidor, y empieza a 
+    recibir el archivo transmitido, almacenándolo o pasándolo a otro proceso.
+
+
+
+
+4 PUERTOS
+
+    ITVL utiliza una serie de puertos para realizar la conexión entre sus dos 
+    puntos (Servidor y Cliente), estos puertos son los siguientes:
+
+    4.1 CLIENTE
+        - Puerto UDP para envio de datagrams: Establecido por defecto al puerto 
+        3000, es utilizado para el envio del datagram que buscará en la red al 
+        servidor.
+        - Puerto UDP para recepción de datagrams: Por defecto en el 5555, será 
+        por donde el cliente escuchará la respuesta del servidor para establecer 
+        la conexión.
+
+    4.2 SERVIDOR
+        - Puerto UDP para recepción de datagrams: Establecido por defecto al 
+        puerto 3000, es utilizado para la recepción del datagram enviado por el 
+        cliente, asi como también para el envio de una respuesta.
+        - Puerto TCP 3000, utilizado para establecer la conexión con el cliente.
+
+
+
+
+
+
+
+
+
+IMAGE TRANSMISSION VIA LAN                                             [Pag. 4]
+
+5 FUNCIONAMIENTO
+
+    5.1 CONEXIÓN
+        
+    5.1.1 BUSQUEDA DE LA DIRECCIÓN DEL SERVIDOR EN LA RED
+        El servidor se pone en escucha, a la espera de que un cliente 
+        solicite la conexión, el cliente envía un mensaje broadcast 
+        utilizando el protocolo UDP. Dicho mensaje solo lo reconoce 
+        el servidor y se describe de esta manera: 
+
+            *-----------------------------------------------------*
+            |       mabel mabel mabel ma ma ma mabel mabel?       |
+            *-----------------------------------------------------*
+
+        Una vez el servidor recibe mensaje, toma la cadena antes del signo "?",
+        para asi verificar el mensaje y confirmar que es un cliente apto.
+        Seguidamente se procede a extraer del datagrama UDP la dirección IP del 
+        cliente, para de esta manera enviar un mensaje de respuesta al cliente. 
+        Dicho mensaje será enviado una vez más por medio del protocolo UDP, por 
+        lo tanto incluira la dirección IP del servidor en él. Este datagrama 
+        contiene un mensaje que solo reconocerá el cliente como modo de 
+        respuesta, y es:
+
+                            *---------------------*
+                            |       dipper        |
+                            *---------------------*
+
+        El cliente recibe el mensaje y procede a extraer del datagrama la 
+        dirección IP del servidor, para así poder establecer la conexion TCP.
+
+        *_________________*                           *_________________*
+        |                 | ------------------------> |                 |
+        |                 |     Mensaje Broadcast     |                 |
+        |     Cliente     |                           |     Servidor    |
+        |                 | <------------------------ |                 |
+        |                 |     Confirmación e IP     |                 |            
+        *_________________*                           *_________________*
+                    
+                    Diagrama de la conexión entre cliente/servidor
+                            por medio de protocolo UDP
+
+
+
+    5.1.2 CONEXIÓN POR TCP PARA TRANSMISIÓN DEL FICHERO IMÁGEN
+        El cliente utiliza la dirección extraida del datagrama UDP para realizar
+        una conexión IP con el servidor. Antes de esto, el servidor empezará
+        a escuchar por medio del puerto 3000 TCP con la finalidad de establecer
+        la conexión con el cliente cuando este lo requiera.
+        Una vez el cliente ejecute la acción de conectarse y el servidor lo 
+        acepte, empezará el envio de mensajes para la confirmación de la 
+        transmisión.
+
+
+
+
+
+
+
+
+
+IMAGE TRANSMISSION VIA LAN                                             [Pag. 5]
+
+    5.2 TRANSMISIÓN
+
+        Primero, el cliente enviará un mensaje con su nombre, el servidor lo 
+        recibirá, y luego devolverá el nombre y peso del archivo imágen, esto 
+        con la finalidad de verificar que el archivo llegará en su totalidad
+        y permitirá guardar el fichero con el mismo nombre que poseía en el 
+        servidor. La estructura del mensaje es la siguiente:
+
+               *-----------------------------------------------------*
+               |           nombre_de_fichero?tamaño_fichero          |
+               *-----------------------------------------------------*
+
+        Seguidamente el cliente verificará el formato del mensaje, guardará 
+        dichos valores y enviará el mismo mensaje a modo de respuesta y 
+        verificación para comenzar la descarga. El servidor verifica si el
+        mensaje de respuesta es igual al enviado al cliente, y si es asi 
+        procede a comenzar la transmisión del fichero, estando el cliente 
+        preparado para recibirlo. 
+        
+        El fichero es enviado en fragmentos de tamaño arbitrario en bytes (no 
+        existe una regla para este valor). 
+
+        Una vez finalizada la transmisión, el servidor esperará la confirmación
+        del cliente para cerrar la conexión. 
+        
+    5.3 FINALIZACIÓN 
+        Cuando el cliente requiere finalizar la conexión entre ambos puntos, 
+        envia un mensaje definido por convenio, determinado:
+
+                            *---------------------*
+                            |         fin         |
+                            *---------------------*
+
+        El servidor recibe dicho mensaje, verifica si es correcto y cierra
+        la conexión entre él y el cliente.
+
+        *_________________*                           *_________________*
+        |                 | <-----------------------> |                 |
+        |                 | Conectar                  |                 |
+        |                 |                           |                 |
+        |                 | ------------------------> |                 |
+        |                 | Nombre cliente            |                 |
+        |                 |                           |                 |
+        |                 | <------------------------ |                 |
+        |                 |    Tamaño y nombre imágen |                 |
+        |                 |                           |                 |
+        |                 | ------------------------> |                 |
+        |     Cliente     | Tamaño y nombre imágen    |     Servidor    | 
+        |                 |                           |                 |
+        |                 | <------------------------ |                 |
+        |                 |            Fichero Imágen |                 |
+        |                 |                           |                 |
+        |                 | ------------------------> |                 |
+        |                 | "Fin" de transmisión      |                 |
+        |                 |                           |                 |
+        |                 | <------------------------ |                 |
+        |                 |           Cerrar conexión |                 |
+        |                 |                           |                 |
+        *_________________*                           *_________________*
+                    
+                    Diagrama de la conexión entre cliente/servidor
+                            por medio de protocolo TCP

@@ -17,7 +17,7 @@ namespace cliente
 {
     public partial class clienteGUI : Form
     {
-        String clienteIP;
+        String clienteIP; //usada solo en la interfax grafica. Puede ser incorrecta
         String nombrePC;
         String serverIP;
         String nomFichero;

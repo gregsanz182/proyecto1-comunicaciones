@@ -1,3 +1,5 @@
+![UNET](unetLogo.png?raw=true "UNET")
+
 ## Image Transmission Via LAN
 ### Proyecto I de Comunicaciones I
 
@@ -6,9 +8,11 @@ Consta de un servidor y un cliente, siendo el servidor quien envia la imágen y 
 
 Para la busqueda del servidor en la LAN, el cliente utiliza el protocolo UDP para enviar un Broadcast y recibir una respuesta del servidor, indicando asi su IP.
 
+Para más informción leer el RFC incluido.
+
 ### Desarrolladores
-*[Anny Chacón (@AnnyEsme27)](https://github.com/AnnyEsme27)
-*[Gregory Sánchez (@gregsanz182)](https://github.com/gregsanz182)
+* [Anny Chacón (@AnnyEsme27)](https://github.com/AnnyEsme27)
+* [Gregory Sánchez (@gregsanz182)](https://github.com/gregsanz182)
 
 *Proyecto desarrollado con propositos educativos para la **Universidad Nacional
 Experimental del Táchira***

@@ -1,4 +1,6 @@
-![UNET](unetLogo.png?raw=true "UNET")
+<p align="center">
+  <img src="unetLogo.png"/>
+</p>
 
 ## Image Transmission Via LAN
 ### Proyecto I de Comunicaciones I

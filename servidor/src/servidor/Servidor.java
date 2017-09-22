@@ -31,15 +31,12 @@ public class Servidor extends JFrame {
     DatagramSocket socketUDP;
     DatagramPacket paquete;
     byte[] buffer;
-    int puerto;
-    int puertoResp;
+    int puerto, puertoResp;
 
     byte[] out, in;
     File f;
     int bytes, width, height, x, y, w, h;
-    String ip, nombre, cadena;
-    String mensajeUdp;
-    String mensajeUdpRespuesta;
+    String ip, nombre, cadena, mensajeUdp, mensajeUdpRespuesta;
     StringTokenizer tokens;
     static final int tambytes = 1048576; // 1Mb
     //--------------------------------------------
@@ -49,14 +46,14 @@ public class Servidor extends JFrame {
     Icon icon;
     JButton enviar;
 
-    public Servidor(File a) throws InterruptedException, UnknownHostException {
+    public Servidor(File file) throws InterruptedException, UnknownHostException {
         server = null;
         socket = null;
         tokens = null;
         cadena = "";
         width = 700;
         height = 500;
-        f = a;
+        f = file;
         mensajeUdp = "mabel mabel mabel ma ma ma mabel mabel";
         mensajeUdpRespuesta = "dipper";
         puerto = 3000;
@@ -64,48 +61,47 @@ public class Servidor extends JFrame {
         buffer = new byte[1000];
 
         try {
-            socketUDP = new DatagramSocket(null);
-            socketUDP.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), puerto));
+            socketUDP = new DatagramSocket(null); //se instancia el Socket para la comunicación UDP
+            socketUDP.bind(new InetSocketAddress(InetAddress.getByName("0.0.0.0"), puerto)); // se vincula el Socket con la direccion y el puerto de escucha
         } catch (SocketException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
-        inicializaComponentes();
-        paquete = new DatagramPacket(buffer, buffer.length);
-        String mensaje = "";
+        inicializaComponentes(); // Parte Gráfica
+        paquete = new DatagramPacket(buffer, buffer.length); // se instancia el Datagrama que se enviará
         try {
             do {
-                mensaje = "";
-                socketUDP.receive(paquete);
+                cadena = "";
+                socketUDP.receive(paquete); // el Socket se queda escuchando hasta que reciba algún mensaje
                 tokens = new StringTokenizer(new String(paquete.getData(), StandardCharsets.UTF_8));
-                mensaje = tokens.nextToken("?");
+                cadena = tokens.nextToken("?");
                 sleep(250);
-                System.out.println(paquete.getAddress().toString());
-                System.out.println(mensaje);
-            } while (!mensaje.equals(mensajeUdp));
+                System.out.println(paquete.getAddress().toString()); // dirección de origen
+                System.out.println(cadena); // mensaje del paquete
+            } while (!cadena.equals(mensajeUdp));
         } catch (IOException ex) {
             System.out.println("Socket: " + ex.getMessage());
         }
         System.out.println("Cliente que pide conexion: " + paquete.getAddress().toString().replaceAll("/", ""));
-        System.out.println("Con este mensaje: " + mensaje);
+        System.out.println("Con este mensaje: " + cadena);
         ip = paquete.getAddress().toString().replaceAll("/", "");
         buffer = mensajeUdpRespuesta.getBytes(StandardCharsets.UTF_8);
-        paquete = new DatagramPacket(buffer, buffer.length, paquete.getAddress(), puertoResp);
+        paquete = new DatagramPacket(buffer, buffer.length, paquete.getAddress(), puertoResp); // se instancia el datagrama con el mensaje (buffer), el tamaño del mensaje, la ip del cliente (destino) y el puerto de respuesta
         sleep(2000);
         try {
-            socketUDP.send(paquete);
+            socketUDP.send(paquete); // el socket envia el datagrama que se creó previamente
         } catch (IOException ex) {
             System.out.println("Socket: " + ex.getMessage());
         }
-        socketUDP.close();
+        socketUDP.close(); // se cierra el socket UDP, para liberar el puerto
         try {
-            server = new ServerSocket(puerto);
+            server = new ServerSocket(puerto); // se instancia el ServerSocket TCP
         } catch (IOException ex) {
             System.out.println("Server: " + ex.getMessage());
         }
-        socket = new Socket();
+        socket = new Socket(); // se instancia el Socket TCP
         try {
-            socket = server.accept();
-            dout = new DataOutputStream(socket.getOutputStream());
+            socket = server.accept(); // el Socket se queda esperando que el cliente se conecte
+            dout = new DataOutputStream(socket.getOutputStream()); // se crean las salidas y entradas para la transferencia de datos
             din = new DataInputStream(socket.getInputStream());
             bin = new BufferedInputStream(new FileInputStream(f));
             text1.setText("Cliente conectado...");
@@ -115,8 +111,8 @@ public class Servidor extends JFrame {
         try {
             //client  ** IP - NOMBRE **
             in = new byte[tambytes];
-            bytes = din.read(in, 0, in.length);
-            if (bytes > 0) {
+            bytes = din.read(in, 0, in.length); // se recibe la información que el cliente envía
+            if (bytes > 0) { // se codifica
                 nombre = new String(in, 0, bytes, StandardCharsets.UTF_8);
                 ipclient.setText(ipclient.getText() + " " + ip);
                 nameclient.setText(nameclient.getText() + " " + nombre);
@@ -289,24 +285,24 @@ public class Servidor extends JFrame {
         try {
             //server  ** IMAGEN **
             out = new byte[tambytes];
-            bytes = bin.read(out, 0, out.length);
+            bytes = bin.read(out, 0, out.length); // se lee el archivo (Imagen) y se guarda en la variable tipo byte
             while (bytes > 0) {
-                dout.write(out, 0, bytes);
+                dout.write(out, 0, bytes); // se escribe o envía la imagen (que se guardo en out) a medida que se lee del archivo
                 dout.flush();
-                bytes = bin.read(out, 0, out.length);
+                bytes = bin.read(out, 0, out.length); // se sigue leyendo del vector de bytes para asegurar que se envíe completo
                 sleep(50);
             }
             msjentrega.setVisible(true);
             //client ** FIN **
             String exit = "";
             in = new byte[tambytes];
-            bytes = din.read(in, 0, in.length);
+            bytes = din.read(in, 0, in.length); // se lee lo que el cliente envía
             if (bytes > 0) {
-                exit = new String(in, 0, bytes, StandardCharsets.UTF_8);
+                exit = new String(in, 0, bytes, StandardCharsets.UTF_8); // se codifica el mensaje entrante
             }
-            if (exit.equals("fin")) {
+            if (exit.equals("fin")) { // se compara con el mensaje de finalización
                 fin.setVisible(true);
-                dout.close();
+                dout.close(); // se cierran las salidas y entradas de datos y el Socket
                 din.close();
                 bin.close();
                 socket.close();

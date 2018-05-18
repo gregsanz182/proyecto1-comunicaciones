@@ -13,7 +13,7 @@ Para la busqueda del servidor en la LAN, el cliente utiliza el protocolo UDP par
 Para más información leer el RFC incluido.
 
 ### Desarrolladores
-* [Anny Chacón (@AnnyEsme27)](https://github.com/AnnyEsme27)
+* [Anny Chacón (@AnnyChacon)](https://github.com/AnnyChacon)
 * [Gregory Sánchez (@gregsanz182)](https://github.com/gregsanz182)
 
 *Proyecto desarrollado con propositos educativos para la **Universidad Nacional
